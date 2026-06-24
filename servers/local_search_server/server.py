@@ -1,6 +1,7 @@
 import sys
 import json
 import re
+import googlemaps
 from mcp.server.fastmcp import FastMCP
 from servers.local_search_server.config import (
     logger, GOOGLE_MAPS_API_KEY, TIMEOUT_SECONDS, 
@@ -26,30 +27,65 @@ async def local_business_search(query: str, page_token: str = None) -> str:
         logger.error(f"Security validation failure: query '{query}' contains forbidden characters.")
         raise ValueError("Query contains invalid characters. Command injection patterns are blocked.")
         
+    if not GOOGLE_MAPS_API_KEY:
+        logger.error("Configuration failure: GOOGLE_MAPS_API_KEY is not configured.")
+        raise ValueError("Google Maps API key is not configured on the server.")
+        
     # 2. Evaluation Telemetry Hooks
     logger.info("Executing evaluation verification metadata check...")
     
-    # Stub response matching schema contracts exactly
-    stub_response = {
-        "results": [
-            {
-                "name": "Stub Dental Clinic",
-                "formatted_address": "120 Main St, Austin, TX 78701",
-                "website": "https://stub-austindentist.com",
-                "rating": 4.6,
-                "user_ratings_total": 45
-            },
-            {
-                "name": "Austin Chiropractic Care",
-                "formatted_address": "450 Congress Ave, Austin, TX 78701",
-                "website": None,  # Simulates a No-Website lead
-                "rating": 3.9,
-                "user_ratings_total": 12
-            }
-        ]
-    }
-    
-    return json.dumps(stub_response)
+    try:
+        # Initialize the Google Maps client with configured timeout
+        gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY, timeout=TIMEOUT_SECONDS)
+        
+        # Call places API
+        places_result = gmaps.places(query=query, page_token=page_token)
+        
+        results = []
+        # Limit to first 10 leads to control latency and API cost
+        target_places = places_result.get("results", [])[:10]
+        
+        for place in target_places:
+            place_id = place.get("place_id")
+            if not place_id:
+                continue
+                
+            try:
+                # Fetch details for each place to resolve the website property
+                details = gmaps.place(
+                    place_id=place_id,
+                    fields=["name", "formatted_address", "website", "rating", "user_ratings_total"]
+                )
+                result_details = details.get("result", {})
+                
+                business = {
+                    "name": result_details.get("name", place.get("name", "")),
+                    "formatted_address": result_details.get("formatted_address", place.get("formatted_address", "")),
+                    "website": result_details.get("website"),
+                    "rating": result_details.get("rating"),
+                    "user_ratings_total": result_details.get("user_ratings_total")
+                }
+                results.append(business)
+            except Exception as e:
+                logger.warning(f"Failed to fetch details for place_id {place_id}: {str(e)}")
+                # Fallback to list details if details API fails
+                business = {
+                    "name": place.get("name", ""),
+                    "formatted_address": place.get("formatted_address", ""),
+                    "website": None,
+                    "rating": place.get("rating"),
+                    "user_ratings_total": place.get("user_ratings_total")
+                }
+                results.append(business)
+                
+        response_data = {
+            "results": results
+        }
+        return json.dumps(response_data)
+        
+    except Exception as e:
+        logger.error(f"Error executing Google Maps search: {str(e)}")
+        raise RuntimeError(f"Google Maps API error: {str(e)}")
 
 if __name__ == "__main__":
     # Runs the stdio loop

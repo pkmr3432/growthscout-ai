@@ -1,0 +1,11 @@
+[project]
+name = "local-search-server"
+version = "0.1.0"
+description = "MCP Local Search Server for GrowthScout AI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=0.1.0",
+    "pydantic>=2.0.0",
+    "googlemaps>=4.10.0"
+]

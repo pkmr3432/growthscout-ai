@@ -1,0 +1,13 @@
+[project]
+name = "web-analyzer-server"
+version = "0.1.0"
+description = "MCP Web Analyzer Server for GrowthScout AI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=0.1.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.25.0",
+    "beautifulsoup4>=4.12.0",
+    "playwright>=1.40.0"
+]

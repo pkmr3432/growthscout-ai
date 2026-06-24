@@ -1,0 +1,18 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "austin_plumbers_search",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Find plumbing services in Austin, Texas."}]
+      }
+    },
+    {
+      "eval_case_id": "seattle_dentists_search",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Find dental clinics in Seattle, WA."}]
+      }
+    }
+  ]
+}

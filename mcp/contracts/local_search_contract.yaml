@@ -1,0 +1,36 @@
+# MCP Tool Contract: Local Search Server
+# Defines validation constraints and execution requirements for tool outputs.
+
+tool: "local_business_search"
+constraints:
+  input:
+    query:
+      required: true
+      type: "string"
+      min_length: 5
+      max_length: 256
+      pattern: "^[a-zA-Z0-9\\s\\,\\-\\.]+$" # Restricts special characters to prevent SQL/Shell injection
+  output:
+    type: "object"
+    required:
+      - results
+    properties:
+      results:
+        type: "array"
+        max_items: 20
+        items:
+          type: "object"
+          required:
+            - name
+            - formatted_address
+          properties:
+            name:
+              type: "string"
+            formatted_address:
+              type: "string"
+            website:
+              type: ["string", "null"]
+            rating:
+              type: ["number", "null"]
+            user_ratings_total:
+              type: ["integer", "null"]

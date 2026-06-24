@@ -1,0 +1,15 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "miami_plumbers",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Find plumbers in Miami, FL"}]
+      },
+      "expected_outputs": {
+        "leads_count": 1,
+        "first_lead_name": "Miami Pipe Masters"
+      }
+    }
+  ]
+}

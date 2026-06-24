@@ -1,0 +1,15 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "seo_extraction_test",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Audit SEO tags for raw_html: <html><head><title>Test Title</title></head></html>"}]
+      },
+      "expected_outputs": {
+        "meta_title": "Test Title",
+        "has_schema_markup": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+# Skill Evaluation Target: SEO Audit
+
+evaluation_target: "skills/seo-audit"
+dataset_ref: "skills/seo-audit/evaluation_cases.json"
+
+assertions:
+  - id: "seo_tag_extraction"
+    metric: "final_response_quality"
+    description: "Verifies HTML metadata values are extracted without formatting logs."
+    assert_conditions:
+      - "instance.response.seo_data.meta_title == 'Test Title'"
+      - "instance.response.seo_data.has_schema_markup == False"

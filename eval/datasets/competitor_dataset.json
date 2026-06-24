@@ -1,0 +1,362 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Competitor Dataset Specification",
+  "description": "Evaluation dataset for competitor-analysis, business-impact-analysis, and opportunity-scoring skills.",
+  "metadata": {
+    "version": "1.0.0",
+    "field_definitions": {
+      "case_id": "Unique identifier for the evaluation test case.",
+      "edge_case_type": "Label identifying standard behavior or specific edge cases (e.g., no_website, missing_competitor_data, scraper_timeout).",
+      "target_business": "Profile, performance, and SEO metadata of the business being audited.",
+      "competitor_candidates": "Array of local competitors found in Discovery, serving as the benchmark cohort.",
+      "expected_benchmark_calculations": "Market averages computed mathematically from the competitor cohort.",
+      "expected_competitive_gap_findings": "Expected gaps flagged when target metrics are benchmarked against the competitor averages.",
+      "evaluation_expectations": "Quality assertions that the reasoning agents must satisfy (e.g. expected opportunity score range and confidence score)."
+    }
+  },
+  "type": "object",
+  "required": ["test_cases"],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "edge_case_type",
+          "target_business",
+          "competitor_candidates",
+          "expected_benchmark_calculations",
+          "expected_competitive_gap_findings",
+          "evaluation_expectations"
+        ],
+        "properties": {
+          "case_id": { "type": "string" },
+          "edge_case_type": { "type": "string" },
+          "target_business": {
+            "type": "object",
+            "required": ["name", "rating", "review_count", "website_url"],
+            "properties": {
+              "name": { "type": "string" },
+              "rating": { "type": "number" },
+              "review_count": { "type": "integer" },
+              "website_url": { "type": ["string", "null"] },
+              "performance_metrics": {
+                "type": "object",
+                "properties": {
+                  "page_load_time_seconds": { "type": "number" },
+                  "mobile_score": { "type": "integer" }
+                }
+              },
+              "seo_metrics": {
+                "type": "object",
+                "properties": {
+                  "meta_title_present": { "type": "boolean" },
+                  "h1_count": { "type": "integer" },
+                  "local_schema_present": { "type": "boolean" }
+                }
+              }
+            }
+          },
+          "competitor_candidates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["name", "rating", "review_count", "website_url"],
+              "properties": {
+                "name": { "type": "string" },
+                "rating": { "type": ["number", "null"] },
+                "review_count": { "type": ["integer", "null"] },
+                "website_url": { "type": ["string", "null"] },
+                "performance_metrics": {
+                  "type": "object",
+                  "properties": {
+                    "page_load_time_seconds": { "type": "number" },
+                    "mobile_score": { "type": "integer" }
+                  }
+                },
+                "seo_metrics": {
+                  "type": "object",
+                  "properties": {
+                    "meta_title_present": { "type": "boolean" },
+                    "h1_count": { "type": "integer" },
+                    "local_schema_present": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "expected_benchmark_calculations": {
+            "type": "object",
+            "required": ["average_market_rating", "average_market_review_count"],
+            "properties": {
+              "average_market_rating": { "type": "number" },
+              "average_market_review_count": { "type": "number" },
+              "average_market_page_load_time_seconds": { "type": ["number", "null"] }
+            }
+          },
+          "expected_competitive_gap_findings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["gap_category", "target_value", "benchmark_value", "severity"],
+              "properties": {
+                "gap_category": { "type": "string" },
+                "target_value": { "type": ["string", "number", "boolean", "null"] },
+                "benchmark_value": { "type": ["string", "number", "boolean", "null"] },
+                "severity": { "type": "string" }
+              }
+            }
+          },
+          "evaluation_expectations": {
+            "type": "object",
+            "required": ["expected_opportunity_score_range", "expected_confidence_score"],
+            "properties": {
+              "expected_opportunity_score_range": {
+                "type": "object",
+                "required": ["min", "max"],
+                "properties": {
+                  "min": { "type": "integer" },
+                  "max": { "type": "integer" }
+                }
+              },
+              "expected_confidence_score": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "case_id": "competitor_case_001_standard",
+      "edge_case_type": "standard_chiropractor_miami",
+      "target_business": {
+        "name": "Miami Chiro Group",
+        "rating": 4.1,
+        "review_count": 12,
+        "website_url": "https://miamichirogroup.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 6.8,
+          "mobile_score": 45
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 2,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Apex Chiropractic Miami",
+          "rating": 4.9,
+          "review_count": 140,
+          "website_url": "https://apexmiamichiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 92
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Downtown Miami Chiropractors",
+          "rating": 4.7,
+          "review_count": 80,
+          "website_url": "https://downtownmiamichiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.2,
+            "mobile_score": 78
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Brickell Health & Spine",
+          "rating": 4.8,
+          "review_count": 110,
+          "website_url": "https://brickellhealthandspine.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": false
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.8,
+        "average_market_review_count": 110.0,
+        "average_market_page_load_time_seconds": 1.73
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.1,
+          "benchmark_value": 4.8,
+          "severity": "High"
+        },
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 6.8,
+          "benchmark_value": 1.73,
+          "severity": "High"
+        },
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 80,
+          "max": 90
+        },
+        "expected_confidence_score": "High"
+      }
+    },
+    {
+      "case_id": "competitor_case_002_no_website",
+      "edge_case_type": "no_website_business",
+      "target_business": {
+        "name": "Local Spine Care",
+        "rating": 4.3,
+        "review_count": 8,
+        "website_url": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Apex Chiropractic Miami",
+          "rating": 4.9,
+          "review_count": 140,
+          "website_url": "https://apexmiamichiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 92
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Downtown Miami Chiropractors",
+          "rating": 4.7,
+          "review_count": 80,
+          "website_url": "https://downtownmiamichiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.2,
+            "mobile_score": 78
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.8,
+        "average_market_review_count": 110.0,
+        "average_market_page_load_time_seconds": 1.7
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "No Website Opportunity",
+          "target_value": null,
+          "benchmark_value": "Competitors have websites",
+          "severity": "High"
+        },
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.3,
+          "benchmark_value": 4.8,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 85,
+          "max": 95
+        },
+        "expected_confidence_score": "Medium"
+      }
+    },
+    {
+      "case_id": "competitor_case_003_scraper_timeout",
+      "edge_case_type": "scraper_timeout",
+      "target_business": {
+        "name": "Brickell Chiropractors LLC",
+        "rating": 4.6,
+        "review_count": 45,
+        "website_url": "https://brickellchiro.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 5.4,
+          "mobile_score": 52
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Apex Chiropractic Miami",
+          "rating": 4.9,
+          "review_count": 140,
+          "website_url": "https://apexmiamichiro.com",
+          "performance_metrics": null,
+          "seo_metrics": null
+        },
+        {
+          "name": "Downtown Miami Chiropractors",
+          "rating": 4.7,
+          "review_count": 80,
+          "website_url": "https://downtownmiamichiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.2,
+            "mobile_score": 78
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.8,
+        "average_market_review_count": 110.0,
+        "average_market_page_load_time_seconds": 2.2
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 5.4,
+          "benchmark_value": 2.2,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 60
+        },
+        "expected_confidence_score": "Low"
+      }
+    }
+  ]
+}

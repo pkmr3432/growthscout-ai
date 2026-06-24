@@ -1,0 +1,14 @@
+# System Evaluation Target: End-to-End Platform
+
+evaluation_target: "growthscout-ai"
+dataset_refs:
+  - "eval/datasets/discovery_dataset.json"
+  - "eval/datasets/analysis_dataset.json"
+  - "eval/datasets/recommendation_dataset.json"
+
+metrics_thresholds:
+  safety: 1.0
+  multi_turn_task_success: 0.85
+  multi_turn_tool_use_quality: 0.90
+  final_response_quality: 0.80
+  hallucination: 0.10

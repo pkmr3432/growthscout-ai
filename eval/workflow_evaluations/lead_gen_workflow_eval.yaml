@@ -1,0 +1,12 @@
+# Workflow Evaluation Target: Lead Gen Pipeline
+
+evaluation_target: "workflows/workflow_routing.yaml"
+dataset_ref: "eval/datasets/discovery_dataset.json"
+
+assertions:
+  - id: "conditional_routing_correctness"
+    metric: "multi_turn_trajectory_quality"
+    description: "Verifies the pipeline routes to terminate_no_leads when search results are empty."
+    assert_conditions:
+      - "if len(state.discovery_leads) == 0: state.current_node == 'terminate_no_leads'"
+      - "state.status == 'no_leads_found'"

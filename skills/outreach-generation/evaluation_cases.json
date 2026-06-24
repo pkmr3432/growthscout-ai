@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "boiler_outreach_test",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Generate outreach email for Austin Boiler Experts with opportunities: no_booking_widget"}]
+      },
+      "expected_outputs": {
+        "contains_keywords": ["Austin Boiler Experts", "booking"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "miami_masters_research",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Query metadata for Miami Pipe Masters in Miami, FL"}]
+      },
+      "expected_outputs": {
+        "phone": "+1 305-555-0199"
+      }
+    }
+  ]
+}

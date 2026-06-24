@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BusinessProfile",
+  "type": "object",
+  "required": [
+    "business_id",
+    "business_name",
+    "website_url",
+    "last_audited_at"
+  ],
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "pattern": "^biz_[a-f0-9]{8}$",
+      "description": "Unique identifier for the business record"
+    },
+    "business_name": {
+      "type": "string"
+    },
+    "website_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "maps_metadata": {
+      "type": "object",
+      "properties": {
+        "google_rating": {
+          "type": "number"
+        },
+        "review_count": {
+          "type": "integer"
+        },
+        "google_maps_place_id": {
+          "type": "string"
+        }
+      }
+    },
+    "last_audited_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "audit_results": {
+      "type": "object",
+      "required": ["cms", "load_time_seconds", "seo_data"],
+      "properties": {
+        "cms": {
+          "type": "string"
+        },
+        "load_time_seconds": {
+          "type": "number"
+        },
+        "has_google_analytics": {
+          "type": "boolean"
+        },
+        "has_facebook_pixel": {
+          "type": "boolean"
+        },
+        "has_booking_widget": {
+          "type": "boolean"
+        },
+        "has_schema_markup": {
+          "type": "boolean"
+        },
+        "seo_data": {
+          "type": "object",
+          "required": ["meta_title", "meta_description"],
+          "properties": {
+            "meta_title": {
+              "type": "string"
+            },
+            "meta_description": {
+              "type": "string"
+            },
+            "h1_elements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "opportunity_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Catalog of opportunities, e.g. ['no_booking_widget', 'slow_loading_mobile']"
+    },
+    "lead_score": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "growth_reports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["report_id", "created_at", "report_markdown"],
+        "properties": {
+          "report_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "report_markdown": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "proposals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["proposal_id", "created_at", "channel", "body_markdown"],
+        "properties": {
+          "proposal_id": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "channel": {
+            "type": "string",
+            "enum": ["email", "linkedin", "pdf_proposal"]
+          },
+          "subject": {
+            "type": "string"
+          },
+          "body_markdown": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

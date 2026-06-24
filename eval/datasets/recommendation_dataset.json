@@ -1,0 +1,11 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "boiler_recommendation_pitch",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Draft a consultative growth outreach report for Austin Boiler Experts (website: http://austinboilerexperts.com) with opportunities: no_booking_widget, slow_loading_mobile and lead score: 65."}]
+      }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "denver_chiro_comp",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Compare Denver chiropractor with rating 4.1 against top market competitors."}]
+      },
+      "expected_outputs": {
+        "is_below_market_average": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Memory Governance Dataset Specification",
+  "description": "Evaluation dataset to validate memory domain ownership, access controls, retrieval restrictions, and immutability rules.",
+  "metadata": {
+    "version": "1.0.0",
+    "field_definitions": {
+      "case_id": "Unique identifier for the memory governance evaluation test case.",
+      "description": "Short explanation of the governance rule being validated.",
+      "acting_agent": "The agent requesting memory access.",
+      "target_memory_domain": "The canonical memory domain (e.g., session_memory, audit_history) the agent is targeting.",
+      "operation": "The memory operation requested (write, overwrite, read, or restore).",
+      "expected_result": "The expected action outcome (success, blocked_unauthorized, blocked_unauthorized_overwrite, filtered_missing_confidence, blocked_missing_source_references, excluded_archived, blocked_ownership_violation).",
+      "expected_audit_log": "Expected properties contained in the generated session audit log."
+    }
+  },
+  "type": "object",
+  "required": ["test_cases"],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "description",
+          "acting_agent",
+          "target_memory_domain",
+          "operation",
+          "expected_result",
+          "expected_audit_log"
+        ],
+        "properties": {
+          "case_id": { "type": "string" },
+          "description": { "type": "string" },
+          "acting_agent": { "type": "string" },
+          "target_memory_domain": { "type": "string" },
+          "operation": { "type": "string" },
+          "expected_result": { "type": "string" },
+          "expected_audit_log": {
+            "type": "object",
+            "required": ["acting_agent", "target_domain", "status", "message"],
+            "properties": {
+              "acting_agent": { "type": "string" },
+              "target_domain": { "type": "string" },
+              "status": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "case_id": "mem_gov_case_001_authorized_write",
+      "description": "website_analysis_agent successfully appends crawl logs to audit_history domain with complete metadata.",
+      "acting_agent": "website_analysis_agent",
+      "target_memory_domain": "audit_history",
+      "operation": "write",
+      "expected_result": "success",
+      "expected_audit_log": {
+        "acting_agent": "website_analysis_agent",
+        "target_domain": "audit_history",
+        "status": "success",
+        "message": "Append operation approved. Record written to gs_audit_history."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_002_unauthorized_write",
+      "description": "website_analysis_agent attempts to write to opportunity_history which is owned exclusively by opportunity_agent.",
+      "acting_agent": "website_analysis_agent",
+      "target_memory_domain": "opportunity_history",
+      "operation": "write",
+      "expected_result": "blocked_unauthorized",
+      "expected_audit_log": {
+        "acting_agent": "website_analysis_agent",
+        "target_domain": "opportunity_history",
+        "status": "failed",
+        "message": "Write operation rejected. Agent website_analysis_agent lacks write permissions on canonical domain opportunity_history."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_003_unauthorized_overwrite",
+      "description": "opportunity_agent attempts to overwrite historical audit logs in audit_history owned by website_analysis_agent.",
+      "acting_agent": "opportunity_agent",
+      "target_memory_domain": "audit_history",
+      "operation": "overwrite",
+      "expected_result": "blocked_unauthorized_overwrite",
+      "expected_audit_log": {
+        "acting_agent": "opportunity_agent",
+        "target_domain": "audit_history",
+        "status": "failed",
+        "message": "Overwrite denied. Domain audit_history is write-restricted to website_analysis_agent and is append-only."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_004_missing_confidence",
+      "description": "opportunity_agent attempts to retrieve an audit log record that does not contain confidence metadata. The query engine filters out the record.",
+      "acting_agent": "opportunity_agent",
+      "target_memory_domain": "audit_history",
+      "operation": "read",
+      "expected_result": "filtered_missing_confidence",
+      "expected_audit_log": {
+        "acting_agent": "opportunity_agent",
+        "target_domain": "audit_history",
+        "status": "filtered",
+        "message": "Record excluded from recall. Target memory lacks mandatory confidence_metadata attribute."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_005_missing_source",
+      "description": "growth_intelligence_agent attempts to retrieve opportunity scores that lack source references.",
+      "acting_agent": "growth_intelligence_agent",
+      "target_memory_domain": "opportunity_history",
+      "operation": "read",
+      "expected_result": "blocked_missing_source_references",
+      "expected_audit_log": {
+        "acting_agent": "growth_intelligence_agent",
+        "target_domain": "opportunity_history",
+        "status": "failed",
+        "message": "Read operation aborted. Retrieved memory violates strict source attribution requirement."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_006_archived_access",
+      "description": "growth_intelligence_agent attempts standard vector context search; older reports (archived after 365 days) are excluded from default search context loops.",
+      "acting_agent": "growth_intelligence_agent",
+      "target_memory_domain": "growth_reports",
+      "operation": "read",
+      "expected_result": "excluded_archived",
+      "expected_audit_log": {
+        "acting_agent": "growth_intelligence_agent",
+        "target_domain": "growth_reports",
+        "status": "success",
+        "message": "Vector query returned 0 active matches. Archived records (older than 365 days) were excluded from current session search scopes."
+      }
+    },
+    {
+      "case_id": "mem_gov_case_007_ownership_violation",
+      "description": "growth_intelligence_agent attempts to write directly into session_memory, which is owned exclusively by orchestrator_agent.",
+      "acting_agent": "growth_intelligence_agent",
+      "target_memory_domain": "session_memory",
+      "operation": "write",
+      "expected_result": "blocked_ownership_violation",
+      "expected_audit_log": {
+        "acting_agent": "growth_intelligence_agent",
+        "target_domain": "session_memory",
+        "status": "failed",
+        "message": "Write rejected. Ownership check failed: domain session_memory is owned by orchestrator_agent."
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+# Agent Definition: Website Analysis Agent
+agent:
+  name: "website_analysis_agent"
+  model: "gemini-1.5-flash-002"
+  description: "Audits target sites for UX components, SEO tags, speed issues, and tech stack components."
+
+  system_instruction: |
+    You are the GrowthScout AI Website Analysis Agent. Your task is to perform technical web presence audits on individual website URLs (both target leads and competitor candidates, as requested by the Orchestrator).
+    For each URL:
+    1. Verify robots.txt allows scraping. If blocked, abort and report "Robots.txt Blocked".
+    2. Fetch raw page HTML using web_page_fetcher.
+    3. Parse the page tech footprint (CMS, analytics, facebook pixel, booking tool, schema markups).
+    4. Audits SEO factors: meta title, meta description, H1 elements.
+    Format your audit output as a structured JSON object matching website_analysis_schema.json.
+
+
+  inputs:
+    - name: "website_url"
+      type: "string"
+
+  outputs:
+    - name: "audit_results"
+      type: "object"
+      description: "Structured JSON audit containing performance, SEO, CMS, and widget metrics."
+
+  tools:
+    - name: "web_page_fetcher"
+      description: "Crawls a target website domain and retrieves raw content."
+    - name: "tech_footprint_scanner"
+      description: "Detects CMS, framework, and widgets on a domain."
+    - name: "seo_auditor"
+      description: "Parses on-page titles, descriptions, and headings."
+
+  memory_requirements:
+    - type: "scraped_page_cache"
+      description: "Ensures we do not crawl the same domain multiple times in a short interval."
+
+  evaluation_criteria:
+    - metric: "multi_turn_tool_use_quality"
+      threshold: 0.90
+    - metric: "hallucination"
+      threshold: 0.05

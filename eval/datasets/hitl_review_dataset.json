@@ -1,0 +1,212 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Human-in-the-Loop Review Dataset Specification",
+  "description": "Evaluation dataset to validate report approval, rejection, correction requests, and regeneration loops.",
+  "metadata": {
+    "version": "1.3.0",
+    "field_definitions": {
+      "scenario_id": "Unique identifier for the HITL evaluation test case.",
+      "description": "Short explanation of the validation purpose.",
+      "report_version": "The version of the growth report under review (e.g., v1, v2, v5).",
+      "reviewer_feedback": "The input payload mimicking user actions in the review gateway.",
+      "expected_routing_behavior": "The expected state transition evaluated by the orchestrator agent.",
+      "expected_memory_updates": "The data modifications expected to be written to canonical memory domains."
+    }
+  },
+  "type": "object",
+  "required": ["test_cases"],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "description",
+          "report_version",
+          "reviewer_feedback",
+          "expected_routing_behavior",
+          "expected_memory_updates"
+        ],
+        "properties": {
+          "scenario_id": { "type": "string" },
+          "description": { "type": "string" },
+          "report_version": { "type": "string" },
+          "reviewer_feedback": {
+            "type": "object",
+            "required": ["approved", "cancelled", "feedback_text"],
+            "properties": {
+              "approved": { "type": "boolean" },
+              "cancelled": { "type": "boolean" },
+              "feedback_text": { "type": ["string", "null"] }
+            }
+          },
+          "expected_routing_behavior": {
+            "type": "object",
+            "required": ["from_state", "to_state", "evaluated_by", "reason"],
+            "properties": {
+              "from_state": { "type": "string" },
+              "to_state": { "type": "string" },
+              "evaluated_by": { "type": "string" },
+              "reason": { "type": "string" }
+            }
+          },
+          "expected_memory_updates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["domain", "keys", "action"],
+              "properties": {
+                "domain": { "type": "string" },
+                "keys": { "type": "array", "items": { "type": "string" } },
+                "action": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "scenario_id": "hitl_case_001_approve",
+      "description": "Reviewer approves report v1 directly, routing the workflow to terminal COMPLETED state.",
+      "report_version": "v1",
+      "reviewer_feedback": {
+        "approved": true,
+        "cancelled": false,
+        "feedback_text": null
+      },
+      "expected_routing_behavior": {
+        "from_state": "AWAITING_APPROVAL",
+        "to_state": "COMPLETED",
+        "evaluated_by": "orchestrator_agent",
+        "reason": "User approved report. Writing to production knowledge bases."
+      },
+      "expected_memory_updates": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "action": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": [],
+          "action": "purge_session_memory_keep_history"
+        }
+      ]
+    },
+    {
+      "scenario_id": "hitl_case_002_reject",
+      "description": "Reviewer rejects report v1 without specific corrections, routing back to REPORT_GENERATION to refine draft copy and produce v2.",
+      "report_version": "v1",
+      "reviewer_feedback": {
+        "approved": false,
+        "cancelled": false,
+        "feedback_text": "The tone is too casual. Please rewrite to sound like a professional management consulting report."
+      },
+      "expected_routing_behavior": {
+        "from_state": "AWAITING_APPROVAL",
+        "to_state": "REPORT_GENERATION",
+        "evaluated_by": "orchestrator_agent",
+        "reason": "User rejected report. Routing back to REPORT_GENERATION to refine draft."
+      },
+      "expected_memory_updates": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "action": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["revision_count"],
+          "action": "increment"
+        }
+      ]
+    },
+    {
+      "scenario_id": "hitl_case_003_correction",
+      "description": "Reviewer submits a correction request to update a specific data metric in the report, routing to REPORT_GENERATION.",
+      "report_version": "v1",
+      "reviewer_feedback": {
+        "approved": false,
+        "cancelled": false,
+        "feedback_text": "Update the competitor benchmark analysis: average page speed for competitors should be 1.9s instead of 2.5s."
+      },
+      "expected_routing_behavior": {
+        "from_state": "AWAITING_APPROVAL",
+        "to_state": "REPORT_GENERATION",
+        "evaluated_by": "orchestrator_agent",
+        "reason": "User rejected report. Routing back to REPORT_GENERATION to refine draft."
+      },
+      "expected_memory_updates": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "action": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["revision_count"],
+          "action": "increment"
+        }
+      ]
+    },
+    {
+      "scenario_id": "hitl_case_004_max_revisions",
+      "description": "Validates termination when the reviewer rejects report v5, reaching the maximum allowable revision cycles (5).",
+      "report_version": "v5",
+      "reviewer_feedback": {
+        "approved": false,
+        "cancelled": false,
+        "feedback_text": "Still not correct. Please adjust mobile schema recommendations."
+      },
+      "expected_routing_behavior": {
+        "from_state": "AWAITING_APPROVAL",
+        "to_state": "FAILED",
+        "evaluated_by": "orchestrator_agent",
+        "reason": "maximum_revision_cycles_exceeded"
+      },
+      "expected_memory_updates": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "action": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["workflow_state"],
+          "action": "write"
+        }
+      ]
+    },
+    {
+      "scenario_id": "hitl_case_005_cancel",
+      "description": "Reviewer cancels the analysis run entirely during the approval checkpoint, terminating the session.",
+      "report_version": "v1",
+      "reviewer_feedback": {
+        "approved": false,
+        "cancelled": true,
+        "feedback_text": "No longer required. Abort run."
+      },
+      "expected_routing_behavior": {
+        "from_state": "AWAITING_APPROVAL",
+        "to_state": "CANCELLED",
+        "evaluated_by": "orchestrator_agent",
+        "reason": "User cancelled the analysis run."
+      },
+      "expected_memory_updates": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "action": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["workflow_state"],
+          "action": "write"
+        }
+      ]
+    }
+  ]
+}

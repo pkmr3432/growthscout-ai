@@ -1,0 +1,16 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "scoring_test_1",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Score opportunities: [{'category_name': 'Performance Opportunity', 'description': 'Mobile load time: 6.8 seconds'}]"}]
+      },
+      "expected_outputs": {
+        "opportunity_score": 82,
+        "confidence_score": "High",
+        "confidence_reasoning": "Website successfully analyzed and SEO audit completed with concrete load time metrics."
+      }
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+# Memory Bank Configuration: GrowthScout AI
+
+# This configuration regulates the long-term context memory retrieval mechanisms
+# and vector search bindings managed under Vertex AI / Agent Engine sessions.
+
+memory_bank:
+  enabled: true
+  persistence:
+    type: "firestore"
+
+  # Refinement 1: Introduce Canonical Memory Domains
+  # This mapping eliminates naming ambiguity between collection names and logical memory domains.
+  # Future implementation code must treat these names as the canonical memory identifiers.
+  memory_domains:
+    session_memory:
+      collection: "gs_sessions"
+    business_profiles:
+      collection: "gs_business_profiles"
+    audit_history:
+      collection: "gs_audit_history"
+    opportunity_history:
+      collection: "gs_opportunity_history"
+    competitor_snapshots:
+      collection: "gs_competitor_snapshots"
+    growth_reports:
+      collection: "gs_growth_reports"
+    human_notes:
+      collection: "gs_human_notes"
+
+  # Separate Session Memory from Persistent Business Knowledge
+  memory_types:
+    session_memory:
+      description: "Ephemeral short-term session state, including query_context, intermediate audit results, workflow state, and HITL state."
+      retention_days: 90
+      purge_expired: true
+      domains:
+        - session_memory
+
+    business_knowledge:
+      description: "Persistent database records containing business profiles, opportunity history, competitor snapshots, growth intelligence reports, and human notes."
+      persistent: true
+      domains:
+        - business_profiles
+        - audit_history
+        - opportunity_history
+        - competitor_snapshots
+        - growth_reports
+        - human_notes
+
+  # Refinement 2: Memory Ownership Governance
+  # Authoritative source of record for each domain. Non-owners cannot overwrite
+  # records without an explicit workflow transition. Ownership does not restrict reads.
+  memory_ownership:
+    session_memory:
+      owner: orchestrator_agent
+    business_profiles:
+      owner: business_discovery_agent
+    audit_history:
+      owner: website_analysis_agent
+    opportunity_history:
+      owner: opportunity_agent
+    competitor_snapshots:
+      owner: opportunity_agent
+    growth_reports:
+      owner: growth_intelligence_agent
+    human_notes:
+      owner: human_user
+
+  # Agent Memory Access Controls referencing canonical memory domains
+  agent_access:
+    orchestrator_agent:
+      read:
+        - session_memory
+        - human_notes
+      write:
+        - session_memory
+        - human_notes
+
+    business_discovery_agent:
+      read:
+        - session_memory
+        - business_profiles
+      write:
+        - business_profiles
+
+    website_analysis_agent:
+      read:
+        - session_memory
+        - business_profiles
+      write:
+        - audit_history
+
+    opportunity_agent:
+      read:
+        - business_profiles
+        - audit_history
+        - competitor_snapshots
+      write:
+        - opportunity_history
+        - competitor_snapshots
+
+    growth_intelligence_agent:
+      read:
+        - business_profiles
+        - audit_history
+        - competitor_snapshots
+        - opportunity_history
+      write:
+        - growth_reports
+
+  # Refinement 3: Add Auditability Metadata Requirements
+  # All persistent records must contain provenance metadata. Audit history is append-only.
+  auditability:
+    require_created_by: true
+    require_created_at: true
+    require_last_modified_at: true
+    require_source_references: true
+    require_confidence_metadata: true
+    immutable_audit_history: true
+
+  # Refinement 4: Add Memory Lifecycle Rules
+  # Archived records are excluded from normal retrieval but remain searchable and restorable.
+  lifecycle_rules:
+    archive_growth_reports: true
+    archive_after_days: 365
+    archive_opportunity_history: true
+    allow_human_restoration: true
+
+  # Recall Safety & Explainability Controls referencing memory domain names
+  retrieval_governance:
+    require_similarity_threshold: true
+    require_source_attribution: true # Retrieved memories must include source references
+    require_confidence_metadata: true # Retrieved memories must include confidence metadata
+    max_records_per_recall: 10
+    block_unverified_memories: true # Unverified memories cannot influence opportunity scoring
+    
+    # Heuristic matching parameters for vector recall
+    confidence_levels:
+      high: 0.90
+      medium: 0.75
+      low: 0.60
+      
+    # Security/Traceability constraints
+    constraint_enforcement:
+      enforce_audit_history_only: true # Opportunity scoring must only use verified audit_history and competitor_snapshots
+      redact_pii_before_retrieval: true
+      allowed_scoring_domains:
+        - audit_history
+        - competitor_snapshots
+
+  vector_search:
+    enabled: true
+    provider: "agent_platform_vector_search"
+    index_name: "gs_leads_index"
+    region: "us-central1"
+    dimensions: 768
+    model: "text-embedding-004"
+    similarity_threshold: 0.82
+    top_k: 5
+
+  cross_session_recall:
+    # Restricts the scope of context recalled across separate runs
+    recall_topics:
+      - "consultant_preferences"      # Recalls outreach style / email templates
+      - "historical_pricing_quotes"   # Recalls past services quotes to avoid conflict
+      - "previously_rejected_leads"   # Excludes blacklisted local SMBs from search
+    max_context_tokens: 2048
+
+  session_storage:
+    type: "agent_platform_sessions"
+    auto_flush_on_failure: false
+    encrypt_in_transit: true
+    encryption_key_secret_id: "projects/gs-prod/secrets/memory-encryption-key/versions/latest"

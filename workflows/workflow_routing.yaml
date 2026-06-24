@@ -1,0 +1,332 @@
+# Workflow Routing Configuration: GrowthScout AI
+# Defines the multi-agent execution pipeline, state transitions, validation gates, and routing paths.
+
+workflow:
+  name: "growth_intelligence_workflow"
+  version: "1.3.0"
+  description: "Pipeline for local business discovery, digital presence auditing, opportunity analysis, and growth report generation."
+  
+  # Global state boundaries and entry
+  initial_state: "IDLE"
+  orchestrator: "orchestrator_agent"
+  
+  # Explicit Orchestrator Ownership
+  routing_governance:
+    routing_authority: "orchestrator_agent"
+    allow_worker_to_worker_transitions: false
+    require_transition_logging: true
+
+  # Memory Ownership Enforcement
+  memory_governance:
+    enforce_memory_ownership: true
+    deny_unauthorized_writes: true
+    validate_against_memory_bank: true
+    on_violation:
+      next: "FAILED"
+      reason: "memory_ownership_violation"
+
+  # Audit trail logging hook applied on every transition
+  audit_trail:
+    enabled: true
+    target_domain: "session_memory"
+    required_metadata:
+      - "session_id"
+      - "workflow_state"
+      - "acting_agent"
+      - "timestamp"
+      - "input_references"
+      - "output_references"
+      - "transition_reason"
+      - "partition_summary" # Traceability metadata containing counts for audit reviews
+    write_policy: "append_only_immutable"
+
+  # States Definitions
+  states:
+    
+    # State 1: Idle
+    IDLE:
+      type: "start"
+      allowed_transitions:
+        - transition: "start_pipeline"
+          next: "DISCOVERING"
+          trigger: "batch_analysis_request"
+          evaluated_by: "orchestrator_agent"
+
+    # State 2: Discovering
+    DISCOVERING:
+      type: "agent_node"
+      agent: "business_discovery_agent"
+      skills:
+        - "skills/business-discovery"
+        - "skills/local-business-research"
+      memory_mapping:
+        inputs:
+          - domain: "session_memory"
+            keys: ["query_context"]
+        outputs:
+          - domain: "session_memory"
+            keys: ["discovery_leads", "competitor_candidates"]
+            policy: "overwrite"
+          - domain: "business_profiles"
+            keys: ["discovered_leads_profiles"]
+            policy: "append"
+      success_criteria:
+        min_leads: 1
+        min_competitors: 3
+      transitions:
+        - condition: "len(state.discovery_leads) == 0"
+          next: "NO_LEADS_FOUND"
+          reason: "No target local leads matched the search criteria."
+          evaluated_by: "orchestrator_agent"
+        - condition: "len(state.discovery_leads) > 0"
+          next: "LEAD_PARTITIONING"
+          reason: "Discovered target businesses. Routing to Lead Partitioning."
+          evaluated_by: "orchestrator_agent"
+
+    # Refinement: Multi-Lead Partitioning & Routing
+    LEAD_PARTITIONING:
+      type: "partition_node"
+      description: "Splits leads into website and no-website partitions and persists results in session memory."
+      
+      inputs:
+        - domain: "session_memory"
+          keys:
+            - "discovery_leads"
+            
+      outputs:
+        - domain: "session_memory"
+          keys:
+            - "website_leads"
+            - "no_website_leads"
+            - "partition_summary"
+          policy: "overwrite"
+          
+      validation:
+        total_partitioned_leads_equals_discovered_leads: true
+        
+      on_validation_failure:
+        next: "FAILED"
+        reason: "lead_partition_integrity_failure"
+        evaluated_by: "orchestrator_agent"
+        
+      partition_rules:
+        website_leads:
+          condition: "website_url != null"
+        no_website_leads:
+          condition: "website_url == null"
+          
+      transitions:
+        # Route to AUDITING if website leads exist
+        - condition: "len(state.website_leads) > 0"
+          next: "AUDITING"
+          reason: "Website leads present. Initiating crawler audits."
+          evaluated_by: "orchestrator_agent"
+        # Skip AUDITING if only no-website leads exist
+        - condition: "len(state.website_leads) == 0 and len(state.no_website_leads) > 0"
+          next: "OPPORTUNITY_ANALYSIS"
+          reason: "No leads with domains found. Bypassing AUDITING state."
+          evaluated_by: "orchestrator_agent"
+
+    # State 3: Auditing
+    AUDITING:
+      type: "agent_node"
+      agent: "website_analysis_agent"
+      skills:
+        - "skills/website-analysis"
+        - "skills/seo-audit"
+      # Enforce partitioning inputs
+      inputs:
+        - website_leads
+      concurrency:
+        max_parallel_crawls: 5
+        isolate_failures: true
+      memory_mapping:
+        inputs:
+          - domain: "session_memory"
+            keys: ["website_leads", "competitor_candidates"]
+        outputs:
+          - domain: "session_memory"
+            keys: ["raw_crawler_logs"]
+            policy: "overwrite"
+          - domain: "audit_history"
+            keys: ["audit_results"]
+            policy: "append_only_immutable"
+      success_criteria:
+        min_crawler_success_rate: 0.80
+      transitions:
+        - condition: "always"
+          next: "OPPORTUNITY_ANALYSIS"
+          reason: "Crawling completed on target and competitor URLs."
+          evaluated_by: "orchestrator_agent"
+
+    # State 4: Opportunity Analysis
+    OPPORTUNITY_ANALYSIS:
+      type: "agent_node"
+      agent: "opportunity_agent"
+      skills:
+        - "skills/competitor-analysis"
+        - "skills/opportunity-classification"
+        - "skills/opportunity-scoring"
+        - "skills/business-impact-analysis"
+      
+      # Enforce partitioning inputs
+      inputs:
+        - website_leads
+        - no_website_leads
+
+      # Evidence Traceability Requirements
+      evidence_traceability:
+        require_source_references: true
+        require_tool_execution_ids: true
+        require_confidence_metadata: true
+        fail_action: "block_output_generation"
+        next: "FAILED"
+
+      # Evidence Validation Gate
+      validation_gate:
+        enabled: true
+        enforce_source_references: true
+        enforce_confidence_metadata: true
+        enforce_audit_history_only: true
+        fail_action: "abort_scoring"
+        abort_state: "FAILED"
+        
+      memory_mapping:
+        inputs:
+          - domain: "audit_history"
+            keys: ["audit_results"]
+          - domain: "business_profiles"
+            keys: ["discovered_leads_profiles"]
+          - domain: "competitor_snapshots"
+            keys: ["competitor_profiles"]
+        outputs:
+          - domain: "opportunity_history"
+            keys: ["opportunity_scores", "business_impact_analysis"]
+            policy: "append"
+          - domain: "competitor_snapshots"
+            keys: ["competitor_profiles"]
+            policy: "overwrite"
+            
+      # Confidence degradation parameters for scoring calculations
+      confidence_degradation:
+        missing_competitor_data_penalty: "degrade_one_level" # High -> Medium
+        failed_website_audit_penalty: "degrade_to_low"
+        incomplete_seo_audit_penalty: "degrade_one_level"
+        missing_verified_evidence: "block_and_abort"
+        
+      success_criteria:
+        classification_completed: true
+        score_generated: true
+        confidence_reasoning_present: true
+      transitions:
+        - condition: "always"
+          next: "REPORT_GENERATION"
+          reason: "Opportunity classification, impact mapping, and confidence scores resolved."
+          evaluated_by: "orchestrator_agent"
+
+    # State 5: Report Generation
+    REPORT_GENERATION:
+      type: "agent_node"
+      agent: "growth_intelligence_agent"
+      skills:
+        - "skills/growth-report-generation"
+        - "skills/outreach-generation"
+      
+      # Evidence Traceability Requirements
+      evidence_traceability:
+        require_source_references: true
+        require_tool_execution_ids: true
+        require_confidence_metadata: true
+        fail_action: "block_output_generation"
+        next: "FAILED"
+
+      # Report Versioning Hook
+      report_versioning:
+        enabled: true
+        initial_version: "v1"
+        increment_on_regeneration: true
+        retain_previous_versions: true
+        output_domain: "growth_reports"
+        
+      memory_mapping:
+        inputs:
+          - domain: "opportunity_history"
+            keys: ["opportunity_scores", "business_impact_analysis"]
+          - domain: "competitor_snapshots"
+            keys: ["competitor_profiles"]
+          - domain: "human_notes"
+            keys: ["reviewer_feedback"] # reads human edits if rejected
+        outputs:
+          - domain: "growth_reports"
+            keys: ["growth_report_markdown"]
+            policy: "append_only_versioned" # never overwrites historical report runs
+          - domain: "session_memory"
+            keys: ["draft_proposals", "draft_outreach_messages"] # secondary outputs
+            policy: "overwrite"
+      success_criteria:
+        report_markdown_valid: true
+      transitions:
+        - condition: "always"
+          next: "AWAITING_APPROVAL"
+          reason: "Master Growth Intelligence Report compiled. Initiating HITL Gate."
+          evaluated_by: "orchestrator_agent"
+
+    # State 6: Awaiting Approval (HITL Gate)
+    AWAITING_APPROVAL:
+      type: "hitl_gate"
+      approval_key: "session_state.hitl_approval_status"
+      
+      # HITL Revision Governance
+      review_governance:
+        max_revision_cycles: 5
+        
+      memory_mapping:
+        inputs:
+          - domain: "growth_reports"
+            keys: ["growth_report_markdown"]
+        outputs:
+          - domain: "human_notes"
+            keys: ["reviewer_feedback"]
+            policy: "append"
+      transitions:
+        # Approval flow
+        - condition: "state.hitl_approval_status.approved == true"
+          next: "COMPLETED"
+          reason: "User approved report. Writing to production knowledge bases."
+          evaluated_by: "orchestrator_agent"
+        # Human Review Rejection Flow with revision limits
+        - condition: "state.hitl_approval_status.approved == false and state.revision_count < 5"
+          next: "REPORT_GENERATION"
+          reason: "User rejected report. Routing back to REPORT_GENERATION to refine draft."
+          actions:
+            - increment: "state.revision_count"
+          evaluated_by: "orchestrator_agent"
+        # Max Revisions exceeded flow
+        - condition: "state.revision_count >= 5"
+          next: "FAILED"
+          reason: "maximum_revision_cycles_exceeded"
+          evaluated_by: "orchestrator_agent"
+        # Cancellation flow
+        - condition: "state.hitl_approval_status.cancelled == true"
+          next: "CANCELLED"
+          reason: "User cancelled the analysis run."
+          evaluated_by: "orchestrator_agent"
+
+    # State 7: Completed (Terminal Approved state)
+    COMPLETED:
+      type: "end_node"
+      status: "completed"
+      action: "purge_session_memory_keep_history"
+
+    # Terminal Failure states
+    CANCELLED:
+      type: "end_node"
+      status: "cancelled"
+
+    FAILED:
+      type: "end_node"
+      status: "failed"
+
+    NO_LEADS_FOUND:
+      type: "end_node"
+      status: "no_leads_found"

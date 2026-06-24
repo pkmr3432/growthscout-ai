@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "report_generation_test_1",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Generate growth report for Miami Pipe Masters with score 82"}]
+      },
+      "expected_outputs": {
+        "contains_keywords": ["Growth Intelligence Report", "Miami Pipe Masters"]
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# Agent Evaluation Target: Orchestrator Agent
+
+evaluation_target: "orchestrator_agent"
+dataset_ref: "eval/datasets/discovery_dataset.json"
+
+assertions:
+  - id: "orchestration_state_transitions"
+    metric: "multi_turn_trajectory_quality"
+    assert_conditions:
+      - "state.status_sequence == ['IDLE', 'DISCOVERING', 'LEAD_PARTITIONING', 'AUDITING', 'OPPORTUNITY_ANALYSIS', 'REPORT_GENERATION', 'AWAITING_APPROVAL']"
+      - "response.code == 200"
+
+  - id: "delegation_correctness"
+    metric: "multi_turn_tool_use_quality"
+    description: "Asserts that orchestrator never invokes Maps or Scraper tools directly."
+    assert_conditions:
+      - "len(instance.events.filter(author='orchestrator', action='tool_call')) == 0"

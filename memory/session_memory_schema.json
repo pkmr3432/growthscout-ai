@@ -1,0 +1,115 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SessionMemory",
+  "type": "object",
+  "required": [
+    "session_id",
+    "status",
+    "created_at",
+    "updated_at",
+    "query_context"
+  ],
+  "properties": {
+    "session_id": {
+      "type": "string",
+      "pattern": "^sess_[a-f0-9]{8}$",
+      "description": "Unique session identifier prefix"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["idle", "discovering", "route_auditing_or_analysis", "auditing", "opportunity_analysis", "report_generation", "awaiting_approval", "completed", "failed", "cancelled", "no_leads_found"],
+      "description": "Active state of the multi-agent pipeline state machine"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "query_context": {
+      "type": "object",
+      "required": ["niche", "location"],
+      "properties": {
+        "niche": {
+          "type": "string",
+          "description": "Business vertical category"
+        },
+        "location": {
+          "type": "string",
+          "description": "Target geographic city, state, or coordinates"
+        },
+        "max_leads": {
+          "type": "integer",
+          "default": 5
+        }
+      }
+    },
+    "leads": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "description": "References to business profile identifiers"
+      }
+    },
+    "conversation_turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn_index", "events"],
+        "properties": {
+          "turn_index": {
+            "type": "integer"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["author", "content"],
+              "properties": {
+                "author": {
+                  "type": "string",
+                  "enum": ["user", "orchestrator", "discovery", "analysis", "opportunity", "growth_intelligence", "proposal", "system"]
+                },
+                "content": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    },
+                    "action_logs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["timestamp", "error_type", "message"],
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "error_type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

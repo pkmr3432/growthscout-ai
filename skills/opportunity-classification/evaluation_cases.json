@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "classification_test_1",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Classify gaps: ['no_analytics_script']"}]
+      },
+      "expected_outputs": {
+        "category_name": "Analytics Opportunity"
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+# Evaluation Configuration: GrowthScout AI
+# This file is parsed by agents-cli eval grade to score agent performance.
+
+metrics_to_run:
+  - multi_turn_task_success
+  - multi_turn_tool_use_quality
+  - final_response_quality
+  - safety
+  - lead_score_correctness # Selected from custom_metrics pool below
+
+custom_metrics:
+  - name: lead_score_correctness
+    description: "Verifies if the lead score matches the valuation heuristics schema."
+    custom_function: |
+      def evaluate(instance):
+          agent_data = instance.get("agent_data", {})
+          turns = agent_data.get("turns", [])
+          if not turns:
+              return {'score': 0.0, 'explanation': 'No execution turns found.'}
+              
+          # Find Opportunity Agent output in logs
+          lead_score = None
+          opportunities = []
+          for turn in turns:
+              for event in turn.get("events", []):
+                  if event.get("author") == "opportunity":
+                      content = event.get("content", {})
+                      lead_score = content.get("lead_score")
+                      opportunities = content.get("opportunities", [])
+                      break
+          
+          if lead_score is None:
+              return {'score': 0.0, 'explanation': 'Opportunity Agent did not produce a lead score.'}
+              
+          # Calculate expected score
+          expected_score = 0
+          if "no_booking_widget" in opportunities:
+              expected_score += 35
+          if "slow_loading_mobile" in opportunities:
+              expected_score += 30
+          if "missing_schema_markup" in opportunities:
+              expected_score += 15
+          if "missing_google_analytics" in opportunities:
+              expected_score += 10
+              
+          if lead_score == expected_score:
+              return {'score': 1.0, 'explanation': f'Correct score of {lead_score} matches gaps.'}
+          else:
+              return {'score': 0.0, 'explanation': f'Incorrect score. Expected {expected_score}, got {lead_score}.'}

@@ -1,0 +1,15 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "boiler_experts_crawl",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Audit website: https://austinboilerexperts.com"}]
+      },
+      "expected_outputs": {
+        "robots_status": "Allowed",
+        "http_response_code": 200
+      }
+    }
+  ]
+}

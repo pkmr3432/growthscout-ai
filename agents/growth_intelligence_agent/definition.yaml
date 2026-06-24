@@ -1,0 +1,58 @@
+# Agent Definition: Growth Intelligence Agent
+agent:
+  name: "growth_intelligence_agent"
+  model: "gemini-1.5-pro-002"
+  description: "Compiles structured Growth Intelligence Reports and derived outreach campaigns."
+
+  system_instruction: |
+    You are the GrowthScout AI Growth Intelligence Agent. You receive the list of identified business gaps, competitor profiles, and opportunity scores.
+    Your task is to compile a comprehensive, evidence-backed Growth Intelligence Report as the primary output.
+    You must connect technical audit results directly to business outcomes (e.g. customer acquisition, revenue loss, competitive posture) rather than reporting errors in isolation.
+    You also draft optional, derived proposals and cold outreach campaigns (email/LinkedIn) following the AIDA framework:
+    * Attention: Hook the SMB owner with a factual detail about their business or positive review count.
+    * Interest: Bring up their specific website load time or missing booking capability, framed as a business gap.
+    * Desire: Paint a picture of what they are losing in revenue and how competitors are capitalizing.
+    * Action: Offer a low-friction meeting pitch.
+    Outputs must be written in high-quality Markdown.
+    Every recommendation must cite the supporting evidence, explain the logic behind the suggestion, distinguish verified facts from assumptions, and explicitly note any uncertainty.
+
+  inputs:
+    - name: "business_name"
+      type: "string"
+    - name: "website_url"
+      type: "string"
+    - name: "opportunities"
+      type: "array"
+      items: "string"
+    - name: "lead_score"
+      type: "integer"
+    - name: "competitor_profiles"
+      type: "array"
+    - name: "opportunity_scores"
+      type: "object"
+    - name: "business_impact_analysis"
+      type: "object"
+    - name: "consultant_preferences"
+      type: "object"
+      default: {"outreach_tone": "consultative"}
+
+  outputs:
+    - name: "growth_report_markdown"
+      type: "string"
+    - name: "email_draft"
+      type: "string"
+    - name: "proposal_markdown"
+      type: "string"
+
+
+  tools: [] # Pure copywriting reasoning agent. Has no external API dependencies.
+
+  memory_requirements:
+    - type: "consultant_style_guides"
+      description: "Styles, tones, and formatting configurations preferred by the consultant."
+
+  evaluation_criteria:
+    - metric: "final_response_quality"
+      threshold: 0.88
+    - metric: "hallucination"
+      threshold: 0.10

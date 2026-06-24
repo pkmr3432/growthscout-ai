@@ -1,0 +1,518 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Workflow Test Dataset Specification",
+  "description": "Evaluation dataset to validate workflow routing, state transitions, recovery logic, and approval flows.",
+  "metadata": {
+    "version": "1.3.0",
+    "field_definitions": {
+      "scenario_id": "Unique identifier for the workflow test scenario.",
+      "description": "Explains the intent of the scenario, highlighting the workflow branch or condition tested.",
+      "input_state": "The starting system memory variables, active state, and history logs prior to transition execution.",
+      "expected_transitions": "Chronological array of state-routing steps evaluated by the orchestrator.",
+      "expected_memory_writes": "Decoupled memory writes expected during the execution trajectory.",
+      "expected_final_state": "The terminal or checkpoint state where the execution pauses or completes."
+    }
+  },
+  "type": "object",
+  "required": ["test_cases"],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "scenario_id",
+          "description",
+          "input_state",
+          "expected_transitions",
+          "expected_memory_writes",
+          "expected_final_state"
+        ],
+        "properties": {
+          "scenario_id": { "type": "string" },
+          "description": { "type": "string" },
+          "input_state": {
+            "type": "object",
+            "required": ["current_state", "session_memory"],
+            "properties": {
+              "current_state": { "type": "string" },
+              "session_memory": { "type": "object" },
+              "audit_history": { "type": "array" }
+            }
+          },
+          "expected_transitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from_state",
+                "to_state",
+                "evaluated_by",
+                "trigger_or_reason"
+              ],
+              "properties": {
+                "from_state": { "type": "string" },
+                "to_state": { "type": "string" },
+                "evaluated_by": { "type": "string" },
+                "trigger_or_reason": { "type": "string" }
+              }
+            }
+          },
+          "expected_memory_writes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["domain", "keys", "policy"],
+              "properties": {
+                "domain": { "type": "string" },
+                "keys": { "type": "array", "items": { "type": "string" } },
+                "policy": { "type": "string" }
+              }
+            }
+          },
+          "expected_final_state": { "type": "string" }
+        }
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "scenario_id": "workflow_case_001_success",
+      "description": "Full pipeline run for discovered local business leads with websites, transitioning from IDLE to COMPLETED via approved review.",
+      "input_state": {
+        "current_state": "IDLE",
+        "session_memory": {
+          "session_id": "sess_001_success",
+          "query_context": {
+            "niche": "dentist",
+            "location": "Austin, TX"
+          }
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "IDLE",
+          "to_state": "DISCOVERING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "start_pipeline"
+        },
+        {
+          "from_state": "DISCOVERING",
+          "to_state": "LEAD_PARTITIONING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Discovered target businesses. Routing to Lead Partitioning."
+        },
+        {
+          "from_state": "LEAD_PARTITIONING",
+          "to_state": "AUDITING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Website leads present. Initiating crawler audits."
+        },
+        {
+          "from_state": "AUDITING",
+          "to_state": "OPPORTUNITY_ANALYSIS",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Crawling completed on target and competitor URLs."
+        },
+        {
+          "from_state": "OPPORTUNITY_ANALYSIS",
+          "to_state": "REPORT_GENERATION",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Opportunity classification, impact mapping, and confidence scores resolved."
+        },
+        {
+          "from_state": "REPORT_GENERATION",
+          "to_state": "AWAITING_APPROVAL",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Master Growth Intelligence Report compiled. Initiating HITL Gate."
+        },
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "COMPLETED",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "User approved report. Writing to production knowledge bases."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "session_memory",
+          "keys": ["discovery_leads", "competitor_candidates"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "business_profiles",
+          "keys": ["discovered_leads_profiles"],
+          "policy": "append"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["website_leads", "no_website_leads", "partition_summary"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["raw_crawler_logs"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "audit_history",
+          "keys": ["audit_results"],
+          "policy": "append_only_immutable"
+        },
+        {
+          "domain": "opportunity_history",
+          "keys": ["opportunity_scores", "business_impact_analysis"],
+          "policy": "append"
+        },
+        {
+          "domain": "growth_reports",
+          "keys": ["growth_report_markdown"],
+          "policy": "append_only_versioned"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["draft_proposals", "draft_outreach_messages"],
+          "policy": "overwrite"
+        }
+      ],
+      "expected_final_state": "COMPLETED"
+    },
+    {
+      "scenario_id": "workflow_case_002_no_website",
+      "description": "Test bypass of the AUDITING state when a discovered lead does not have a website. Bypasses AUDITING and routes directly to OPPORTUNITY_ANALYSIS.",
+      "input_state": {
+        "current_state": "IDLE",
+        "session_memory": {
+          "session_id": "sess_002_no_website",
+          "query_context": {
+            "niche": "plumbing",
+            "location": "Boston, MA"
+          }
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "IDLE",
+          "to_state": "DISCOVERING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "start_pipeline"
+        },
+        {
+          "from_state": "DISCOVERING",
+          "to_state": "LEAD_PARTITIONING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Discovered target businesses. Routing to Lead Partitioning."
+        },
+        {
+          "from_state": "LEAD_PARTITIONING",
+          "to_state": "OPPORTUNITY_ANALYSIS",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "No leads with domains found. Bypassing AUDITING state."
+        },
+        {
+          "from_state": "OPPORTUNITY_ANALYSIS",
+          "to_state": "REPORT_GENERATION",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Opportunity classification, impact mapping, and confidence scores resolved."
+        },
+        {
+          "from_state": "REPORT_GENERATION",
+          "to_state": "AWAITING_APPROVAL",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Master Growth Intelligence Report compiled. Initiating HITL Gate."
+        },
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "COMPLETED",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "User approved report. Writing to production knowledge bases."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "session_memory",
+          "keys": ["discovery_leads", "competitor_candidates"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "session_memory",
+          "keys": ["website_leads", "no_website_leads", "partition_summary"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "opportunity_history",
+          "keys": ["opportunity_scores", "business_impact_analysis"],
+          "policy": "append"
+        },
+        {
+          "domain": "growth_reports",
+          "keys": ["growth_report_markdown"],
+          "policy": "append_only_versioned"
+        }
+      ],
+      "expected_final_state": "COMPLETED"
+    },
+    {
+      "scenario_id": "workflow_case_003_no_leads",
+      "description": "Test termination when search query yields 0 local leads matching search criteria in the DISCOVERING state.",
+      "input_state": {
+        "current_state": "IDLE",
+        "session_memory": {
+          "session_id": "sess_003_no_leads",
+          "query_context": {
+            "niche": "exotic_flowers",
+            "location": "Rural Idaho"
+          }
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "IDLE",
+          "to_state": "DISCOVERING",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "start_pipeline"
+        },
+        {
+          "from_state": "DISCOVERING",
+          "to_state": "NO_LEADS_FOUND",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "No target local leads matched the search criteria."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "session_memory",
+          "keys": ["discovery_leads", "competitor_candidates"],
+          "policy": "overwrite"
+        }
+      ],
+      "expected_final_state": "NO_LEADS_FOUND"
+    },
+    {
+      "scenario_id": "workflow_case_004_approval_direct",
+      "description": "Tests standard approval transition from AWAITING_APPROVAL to COMPLETED when hitl_approval_status.approved is true.",
+      "input_state": {
+        "current_state": "AWAITING_APPROVAL",
+        "session_memory": {
+          "session_id": "sess_004_approval",
+          "hitl_approval_status": {
+            "approved": true,
+            "cancelled": false
+          },
+          "revision_count": 0
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "COMPLETED",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "User approved report. Writing to production knowledge bases."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "policy": "append"
+        }
+      ],
+      "expected_final_state": "COMPLETED"
+    },
+    {
+      "scenario_id": "workflow_case_005_rejection_loop",
+      "description": "Tests the human review rejection path. A rejected draft routes back to REPORT_GENERATION. Max cycles is 5; if exceeded, routes to FAILED.",
+      "input_state": {
+        "current_state": "AWAITING_APPROVAL",
+        "session_memory": {
+          "session_id": "sess_005_rejection",
+          "hitl_approval_status": {
+            "approved": false,
+            "cancelled": false,
+            "reviewer_feedback": "Please re-analyze focusing more on mobile page speed optimization recommendations."
+          },
+          "revision_count": 4
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "REPORT_GENERATION",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "User rejected report. Routing back to REPORT_GENERATION to refine draft."
+        },
+        {
+          "from_state": "REPORT_GENERATION",
+          "to_state": "AWAITING_APPROVAL",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Master Growth Intelligence Report compiled. Initiating HITL Gate."
+        },
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "FAILED",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "maximum_revision_cycles_exceeded"
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "policy": "append"
+        },
+        {
+          "domain": "growth_reports",
+          "keys": ["growth_report_markdown"],
+          "policy": "append_only_versioned"
+        }
+      ],
+      "expected_final_state": "FAILED"
+    },
+    {
+      "scenario_id": "workflow_case_006_cancellation",
+      "description": "Tests cancellation path. When the user sets hitl_approval_status.cancelled to true, the workflow transitions to CANCELLED state.",
+      "input_state": {
+        "current_state": "AWAITING_APPROVAL",
+        "session_memory": {
+          "session_id": "sess_006_cancel",
+          "hitl_approval_status": {
+            "approved": false,
+            "cancelled": true
+          },
+          "revision_count": 1
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "AWAITING_APPROVAL",
+          "to_state": "CANCELLED",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "User cancelled the analysis run."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "human_notes",
+          "keys": ["reviewer_feedback"],
+          "policy": "append"
+        }
+      ],
+      "expected_final_state": "CANCELLED"
+    },
+    {
+      "scenario_id": "workflow_case_007_timeout_recovery",
+      "description": "Tests recovery behavior when website_analysis_agent times out during the AUDITING state. The Orchestrator recovers by routing to OPPORTUNITY_ANALYSIS with partial/empty audit logs and degraded confidence.",
+      "input_state": {
+        "current_state": "AUDITING",
+        "session_memory": {
+          "session_id": "sess_007_timeout",
+          "website_leads": [
+            {
+              "business_name": "Timeout Target",
+              "website_url": "http://slow-website.com"
+            }
+          ]
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "AUDITING",
+          "to_state": "OPPORTUNITY_ANALYSIS",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Auditing timeout occurred. Resuming workflow with partial audit records."
+        },
+        {
+          "from_state": "OPPORTUNITY_ANALYSIS",
+          "to_state": "REPORT_GENERATION",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Opportunity classification, impact mapping, and confidence scores resolved."
+        },
+        {
+          "from_state": "REPORT_GENERATION",
+          "to_state": "AWAITING_APPROVAL",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Master Growth Intelligence Report compiled. Initiating HITL Gate."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "session_memory",
+          "keys": ["raw_crawler_logs"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "audit_history",
+          "keys": ["audit_results"],
+          "policy": "append_only_immutable"
+        },
+        {
+          "domain": "opportunity_history",
+          "keys": ["opportunity_scores", "business_impact_analysis"],
+          "policy": "append"
+        },
+        {
+          "domain": "growth_reports",
+          "keys": ["growth_report_markdown"],
+          "policy": "append_only_versioned"
+        }
+      ],
+      "expected_final_state": "AWAITING_APPROVAL"
+    },
+    {
+      "scenario_id": "workflow_case_008_failed_audit_recovery",
+      "description": "Tests graceful recovery when crawl execution fails due to server network problems (website_crawled_successfully: false). Pipeline continues to OPPORTUNITY_ANALYSIS instead of failing outright.",
+      "input_state": {
+        "current_state": "AUDITING",
+        "session_memory": {
+          "session_id": "sess_008_failed_audit",
+          "website_leads": [
+            {
+              "business_name": "Broken Target",
+              "website_url": "http://broken-network-dns.com"
+            }
+          ]
+        },
+        "audit_history": []
+      },
+      "expected_transitions": [
+        {
+          "from_state": "AUDITING",
+          "to_state": "OPPORTUNITY_ANALYSIS",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Crawling completed on target and competitor URLs."
+        },
+        {
+          "from_state": "OPPORTUNITY_ANALYSIS",
+          "to_state": "REPORT_GENERATION",
+          "evaluated_by": "orchestrator_agent",
+          "trigger_or_reason": "Opportunity classification, impact mapping, and confidence scores resolved."
+        }
+      ],
+      "expected_memory_writes": [
+        {
+          "domain": "session_memory",
+          "keys": ["raw_crawler_logs"],
+          "policy": "overwrite"
+        },
+        {
+          "domain": "audit_history",
+          "keys": ["audit_results"],
+          "policy": "append_only_immutable"
+        },
+        {
+          "domain": "opportunity_history",
+          "keys": ["opportunity_scores", "business_impact_analysis"],
+          "policy": "append"
+        }
+      ],
+      "expected_final_state": "REPORT_GENERATION"
+    }
+  ]
+}

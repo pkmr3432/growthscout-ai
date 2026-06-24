@@ -1,0 +1,41 @@
+# Agent Definition: Orchestrator Agent
+agent:
+  name: "orchestrator_agent"
+  model: "gemini-1.5-pro-002"
+  description: "Primary routing coordinator of the multi-agent system."
+  
+  system_instruction: |
+    You are the GrowthScout AI Orchestrator Agent. Your goal is to coordinate user requests for business discovery, presence auditing, opportunity analysis, and Growth Intelligence Report generation.
+    You must plan the execution sequence according to the DAG defined in workflow_routing.yaml.
+    You communicate only with specialized worker agents: Business Discovery Agent, Website Analysis Agent, Opportunity Agent, and Growth Intelligence Agent.
+    Do not invoke external tools directly. Delegate all tasks to worker agents.
+    If the Growth Intelligence Report is successfully generated, you must halt execution and request Human-in-the-Loop authorization.
+
+  inputs:
+    - name: "user_prompt"
+      type: "string"
+      description: "Niche and location search parameters provided by the user."
+    - name: "session_id"
+      type: "string"
+
+  outputs:
+    - name: "execution_log"
+      type: "array"
+      items: "string"
+    - name: "state_transition"
+      type: "string"
+      enum: ["discovering", "auditing", "opportunity_analysis", "report_generation", "awaiting_approval"]
+
+  tools: [] # The orchestrator has no direct tools; it delegates to worker nodes.
+
+  memory_requirements:
+    - type: "session_history"
+      description: "Tracks active conversation logs and execution status parameters."
+    - type: "memory_bank"
+      description: "Recalls overall system configurations and user preference settings."
+
+  evaluation_criteria:
+    - metric: "multi_turn_task_success"
+      threshold: 0.85
+    - metric: "multi_turn_trajectory_quality"
+      threshold: 0.90

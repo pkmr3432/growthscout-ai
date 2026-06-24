@@ -1,0 +1,45 @@
+# Agent CLI Configuration Manifest: GrowthScout AI
+# This file is parsed by agents-cli to coordinate agent and skill relationships.
+
+manifest_version: "1.0.0"
+project:
+  name: "growthscout-ai"
+  region: "us-central1"
+
+agents:
+  - name: "orchestrator_agent"
+    config_path: "agents/orchestrator_agent/definition.yaml"
+    model: "gemini-1.5-pro-002"
+    skills: []
+
+  - name: "business_discovery_agent"
+    config_path: "agents/business_discovery_agent/definition.yaml"
+    model: "gemini-1.5-flash-002"
+    skills:
+      - "skills/business-discovery"
+      - "skills/local-business-research"
+
+  - name: "website_analysis_agent"
+    config_path: "agents/website_analysis_agent/definition.yaml"
+    model: "gemini-1.5-flash-002"
+    skills:
+      - "skills/website-analysis"
+      - "skills/seo-audit"
+
+  - name: "opportunity_agent"
+    config_path: "agents/opportunity_agent/definition.yaml"
+    model: "gemini-1.5-flash-002"
+    skills:
+      - "skills/competitor-analysis"
+      - "skills/opportunity-scoring"
+      - "skills/opportunity-classification"
+      - "skills/business-impact-analysis"
+
+  - name: "growth_intelligence_agent"
+    config_path: "agents/growth_intelligence_agent/definition.yaml"
+    model: "gemini-1.5-pro-002"
+    skills:
+      - "skills/growth-report-generation"
+      - "skills/outreach-generation"
+
+

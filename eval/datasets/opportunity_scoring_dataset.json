@@ -1,0 +1,330 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Opportunity Scoring Dataset Specification",
+  "description": "Evaluation dataset for Opportunity Classification, Opportunity Scoring, Confidence Scoring, and Business Impact Analysis skills.",
+  "metadata": {
+    "version": "1.0.0",
+    "field_definitions": {
+      "case_id": "Unique identifier for the evaluation test case.",
+      "edge_case_type": "Label identifying standard behavior or specific edge cases (e.g., no_website, failed_audit, missing_competitor, incomplete_seo, robots_blocked).",
+      "inputs": "The raw evidence findings generated from crawler tools, Maps search, and competitive benchmarks.",
+      "expected_outputs": "The expected classifications, scores, confidence levels, and impact outcomes that the Opportunity Agent must resolve."
+    }
+  },
+  "type": "object",
+  "required": ["test_cases"],
+  "properties": {
+    "test_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "case_id",
+          "edge_case_type",
+          "inputs",
+          "expected_outputs",
+          "confidence_degradation_expectations"
+        ],
+        "properties": {
+          "case_id": { "type": "string" },
+          "edge_case_type": { "type": "string" },
+          "inputs": {
+            "type": "object",
+            "required": [
+              "audit_findings",
+              "seo_findings",
+              "performance_findings",
+              "conversion_findings",
+              "reputation_findings",
+              "competitor_benchmarks"
+            ],
+            "properties": {
+              "audit_findings": { "type": "object" },
+              "seo_findings": { "type": "object" },
+              "performance_findings": { "type": "object" },
+              "conversion_findings": { "type": "object" },
+              "reputation_findings": { "type": "object" },
+              "competitor_benchmarks": { "type": "object" }
+            }
+          },
+          "expected_outputs": {
+            "type": "object",
+            "required": [
+              "opportunity_category",
+              "opportunity_score",
+              "confidence_level",
+              "confidence_reasoning",
+              "business_impact_analysis"
+            ],
+            "properties": {
+              "opportunity_category": { "type": "string" },
+              "opportunity_score": { "type": ["integer", "null"] },
+              "confidence_level": { "type": "string" },
+              "confidence_reasoning": { "type": "string" },
+              "business_impact_analysis": { "type": "object" }
+            }
+          },
+          "confidence_degradation_expectations": {
+            "type": "object",
+            "required": ["applied_penalties", "expected_degradation_reason"],
+            "properties": {
+              "applied_penalties": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "expected_degradation_reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "test_cases": [
+    {
+      "case_id": "scoring_case_001_standard",
+      "edge_case_type": "standard_dentist_austin",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "WordPress 6.4",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": false,
+          "local_schema_present": false
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 6.2,
+          "mobile_responsiveness_score": 52
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.6,
+          "review_count": 82
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.8,
+          "average_competitor_review_count": 140,
+          "average_competitor_page_load_time_seconds": 1.9,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 85,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence based on successful target site crawl indexes and complete competitor benchmark profiles.",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Slow loading speed (6.2s vs. 1.9s average) results in estimated 25% traffic bounce rates.",
+          "SEO Opportunity": "Missing sitemaps and local schema markup limits search positioning against competitor chiro profiles."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      }
+    },
+    {
+      "case_id": "scoring_case_002_no_website",
+      "edge_case_type": "no_website_business",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "domain_does_not_exist"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.2,
+          "review_count": 9
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.8,
+          "average_competitor_review_count": 120,
+          "average_competitor_page_load_time_seconds": 1.8,
+          "average_competitor_schema_org_adoption": 0.8
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "No Website Opportunity",
+        "opportunity_score": 92,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium. Target business lacks a website which limits crawlers but reputational records and competitor benchmarks exist.",
+        "business_impact_analysis": {
+          "No Website Opportunity": "Complete absence of domain results in 100% loss of local organic traffic search captures."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": ["no_website_audit_degradation"],
+        "expected_degradation_reason": "Confidence degraded to Medium due to lack of direct website performance crawling logs."
+      }
+    },
+    {
+      "case_id": "scoring_case_003_failed_audit",
+      "edge_case_type": "failed_audit",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "dns_resolution_failure"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.5,
+          "review_count": 14
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.8,
+          "average_competitor_review_count": 120
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": null,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Opportunity scoring is blocked for technical audit metrics due to target site audit log failure. Reputation scoring is preserved but degraded.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Low local search capture due to rating gap compared to competitor average."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": ["failed_website_audit_penalty"],
+        "expected_degradation_reason": "Confidence degraded to Low. Missing target website evidence blocks performance scoring."
+      }
+    },
+    {
+      "case_id": "scoring_case_004_missing_competitor",
+      "edge_case_type": "missing_competitor_data",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Squarespace",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": false
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 5.8,
+          "mobile_responsiveness_score": 62
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.1,
+          "review_count": 15
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": null,
+          "average_competitor_review_count": null,
+          "average_competitor_page_load_time_seconds": null,
+          "average_competitor_schema_org_adoption": null
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 60,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to missing local competitor benchmarks. Scoring is derived from static threshold parameters.",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Slow website load speeds limits mobile user retention thresholds."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": ["missing_competitor_data_penalty"],
+        "expected_degradation_reason": "Confidence degraded by one level to Medium due to lack of local benchmark comparison details."
+      }
+    },
+    {
+      "case_id": "scoring_case_005_incomplete_seo",
+      "edge_case_type": "incomplete_seo_audit",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Wix",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": null,
+          "meta_description_present": null,
+          "local_schema_present": null
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 6.8,
+          "mobile_responsiveness_score": 42
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": false
+        },
+        "reputation_findings": {
+          "rating": 4.7,
+          "review_count": 92
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.8,
+          "average_competitor_review_count": 110,
+          "average_competitor_page_load_time_seconds": 1.8,
+          "average_competitor_schema_org_adoption": 0.9
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 82,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to incomplete target SEO tags audit. Performance audit is fully verified.",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Slow loading speed limits visitor conversions."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": ["incomplete_seo_audit_penalty"],
+        "expected_degradation_reason": "Confidence degraded by one level to Medium due to empty target SEO meta findings."
+      }
+    },
+    {
+      "case_id": "scoring_case_006_robots_blocked",
+      "edge_case_type": "robots_txt_blocked",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "robots_txt_block"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 22
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.8,
+          "average_competitor_review_count": 110
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": null,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Crawling blocked by robots.txt constraint rules. Opportunity scoring on website metrics is blocked.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Reputation gap relative to competitor review counts."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": ["robots_txt_blocked_degradation"],
+        "expected_degradation_reason": "Confidence degraded to Low. Scraper blocked by target robots.txt rules."
+      }
+    }
+  ]
+}

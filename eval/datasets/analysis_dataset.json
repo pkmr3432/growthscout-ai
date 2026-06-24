@@ -1,0 +1,18 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "austin_boiler_analysis",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Perform webpresence analysis on http://austinboilerexperts.com"}]
+      }
+    },
+    {
+      "eval_case_id": "seattle_dental_analysis",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Perform webpresence analysis on http://seattledentistry.com"}]
+      }
+    }
+  ]
+}

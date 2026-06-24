@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LocalSearchTools",
+  "type": "object",
+  "properties": {
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "inputSchema"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "enum": ["local_business_search"]
+          },
+          "description": {
+            "type": "string"
+          },
+          "inputSchema": {
+            "type": "object",
+            "required": ["properties", "required"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "object"
+              },
+              "properties": {
+                "type": "object",
+                "required": ["query"],
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "description": "Query details containing niche and city."
+                  },
+                  "page_token": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

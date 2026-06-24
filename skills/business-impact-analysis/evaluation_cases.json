@@ -1,0 +1,14 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "impact_test_1",
+      "prompt": {
+        "role": "user",
+        "parts": [{"text": "Explain impact for Performance Opportunity: Mobile load time: 6.8 seconds"}]
+      },
+      "expected_outputs": {
+        "contains_keywords": ["bounce", "conversion"]
+      }
+    }
+  ]
+}

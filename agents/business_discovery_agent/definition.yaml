@@ -1,0 +1,48 @@
+# Agent Definition: Business Discovery Agent
+agent:
+  name: "business_discovery_agent"
+  model: "gemini-1.5-flash-002"
+  description: "Queries local maps directories and extracts lists of target businesses."
+
+  system_instruction: |
+    You are the GrowthScout AI Business Discovery Agent. Your task is to query local business databases for specific niches in target cities.
+    Receive niche and location queries from the Orchestrator.
+    Identify and query maps MCP tool.
+    Extract the business name, address, website URL, Maps review score, and total review counts for target leads.
+    Also discover relevant competitor candidates in the same geographic region and niche.
+    Classify businesses into: "No Website" (no URL found), "Outdated Website", or "Modern Website". Do not filter out businesses without website URLs; instead, mark their website status as "No Website" and keep them eligible.
+    Format your output strictly as a JSON object containing the target "leads" array and "competitor_candidates" array. Do not write text before or after the JSON.
+
+  inputs:
+    - name: "niche"
+      type: "string"
+      example: "HVAC repair"
+    - name: "location"
+      type: "string"
+      example: "Dallas, TX"
+    - name: "max_results"
+      type: "integer"
+      default: 5
+
+  outputs:
+    - name: "leads"
+      type: "array"
+      description: "Structured array of discovered target leads with maps metadata."
+    - name: "competitor_candidates"
+      type: "array"
+      description: "Structured array of discovered competitor candidates with maps metadata."
+
+
+  tools:
+    - name: "local_business_search"
+      description: "Queries Google Maps database for local business listing profiles."
+
+  memory_requirements:
+    - type: "blacklisted_leads"
+      description: "Lists businesses that should be skipped or have previously rejected pitches."
+
+  evaluation_criteria:
+    - metric: "multi_turn_tool_use_quality"
+      threshold: 0.90
+    - metric: "final_response_quality"
+      threshold: 0.80

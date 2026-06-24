@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "local_search_server": {
+      "command": "uv",
+      "args": ["run", "--with", "mcp", "servers/local_search_server/server.py"],
+      "env": {
+        "GOOGLE_MAPS_API_KEY": "env:GOOGLE_MAPS_API_KEY"
+      }
+    },
+    "web_analyzer_server": {
+      "command": "uv",
+      "args": ["run", "--with", "mcp", "servers/web_analyzer_server/server.py"],
+      "env": {
+        "SCRAPER_USER_AGENT": "GrowthScoutBot/1.0",
+        "SCRAPER_RATE_LIMIT_DELAY": "2"
+      }
+    }
+  }
+}

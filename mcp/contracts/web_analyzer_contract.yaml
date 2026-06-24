@@ -1,0 +1,65 @@
+# MCP Tool Contract: Web Analyzer Server
+# Defines validation constraints and execution requirements for tool outputs.
+
+tools:
+  - name: "web_page_fetcher"
+    constraints:
+      input:
+        url:
+          required: true
+          type: "string"
+          format: "uri"
+          pattern: "^https?:\\/\\/.*" # Must be valid http/https URL
+      output:
+        type: "object"
+        required:
+          - status
+        properties:
+          status:
+            type: "integer"
+            enum: [200, 301, 302, 403, 404, 500]
+          content:
+            type: ["string", "null"]
+
+  - name: "tech_footprint_scanner"
+    constraints:
+      input:
+        url:
+          required: true
+          type: "string"
+          format: "uri"
+      output:
+        type: "object"
+        required:
+          - cms
+          - load_time_seconds
+        properties:
+          cms:
+            type: "string"
+          load_time_seconds:
+            type: "number"
+          has_booking_widget:
+            type: "boolean"
+
+  - name: "seo_auditor"
+    constraints:
+      input:
+        url:
+          required: true
+          type: "string"
+          format: "uri"
+      output:
+        type: "object"
+        required:
+          - seo_data
+        properties:
+          seo_data:
+            type: "object"
+            required:
+              - meta_title
+              - meta_description
+            properties:
+              meta_title:
+                type: "string"
+              meta_description:
+                type: "string"

@@ -58,8 +58,16 @@ tools:
             required:
               - meta_title
               - meta_description
+              - h1_elements
+              - has_schema_markup
             properties:
               meta_title:
-                type: "string"
+                type: ["string", "null"]
               meta_description:
-                type: "string"
+                type: ["string", "null"]
+              h1_elements:
+                type: "array"
+                items:
+                  type: "string"
+              has_schema_markup:
+                type: "boolean"

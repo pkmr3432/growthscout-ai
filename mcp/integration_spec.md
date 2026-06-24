@@ -34,5 +34,46 @@ Every client-server connection must follow a strict three-phase initialization l
 The MCP Client (FastAPI Gateway) must handle connection failures using the following HTTP / JSON-RPC rules:
 
 *   **Initialization Timeout**: If the server fails to reply to the `initialize` handshake within **5000ms**, the client terminates the socket, reports `mcp_connection_timeout`, and suspends search requests.
-*   **Tool Call Timeout**: Individual tool calls are capped at **10000ms**. If an analysis scraping query hangs, the client returns JSON-RPC error code `-32603` (Internal Error) and halts the specific lead crawl thread.
+*   **Tool Call Timeout**: Individual tool calls are capped at **10000ms** (except 15000ms for crawler scrapers). If an analysis scraping query hangs, the client returns JSON-RPC error code `-32603` (Internal Error) and halts the specific lead crawl thread.
 *   **Schema Validation Mismatch**: If a tool call response does not match the contracts defined in [contracts/](file:///Users/ptech/Desktop/growthscout-ai/mcp/contracts/), the client ignores the data, logs a schema violation trace, and sets the lead's audit state to `validation_failed`.
+
+---
+
+## 4. Tool Evaluation Specifications
+All MCP tools must pass evaluation checks defined in `eval/eval_config.yaml` before deployment to main staging.
+
+### 4.1 local_business_search Evaluation
+*   **Performance Metrics**:
+    *   `retrieval_success_rate` (>= 95%): Valid queries (e.g. niche + city) must return >= 3 results.
+    *   `latency` (average < 1500ms): Place search + details API fetches.
+*   **Dataset Conformance**:
+    *   Must run tests using queries in `eval/datasets/discovery_dataset.json`.
+    *   Assert that tool returns valid HTTP status 200 responses.
+
+### 4.2 web_page_fetcher / tech_footprint_scanner / seo_auditor Evaluation
+*   **Performance Metrics**:
+    *   `robots_compliance_accuracy` (100%): Correctly parses and blocks crawled domains where robots.txt forbids it.
+    *   `scrape_success_rate` (>= 90%): Extracts raw HTML content for valid http/https endpoints.
+    *   `footprint_accuracy` (>= 95%): Matches identified CMS platforms (WordPress, Shopify, etc.) against ground truth metadata in `eval/datasets/analysis_dataset.json`.
+*   **Latency Bounds**:
+    *   Capped at 15 seconds per crawl to prevent pipeline starvation.
+
+---
+
+## 5. Tool Security Validation Specifications
+The MCP server gateway validates every JSON-RPC argument against the security policies before execution.
+
+### 5.1 input Sanitization Validation
+*   **Command Filter**: Rejects parameters matching: `;`, `&&`, `|`, `` ` ``, `$()`.
+*   **SQL Injection Guard**: Drops query arguments containing `UNION SELECT` or `OR 1=1`.
+*   **Character Limits**: Queries capped at 256 characters. URLs capped at 2048 characters.
+
+### 5.2 SSRF Protection Gate
+The `web_page_fetcher` tool must filter IPs before request dispatching:
+*   **Address Check**: Resolve the target domain IP address.
+*   **Blacklist Ranges**: Abort request if destination falls within loopback ranges (`127.0.0.0/8`, `::1`), private networks (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`), or link-local endpoints (`169.254.169.254`).
+
+### 5.3 Resource Exhaustion Limits
+*   **Payload Bounds**: Read buffer capped at 2MB per HTTP response.
+*   **Concurrency Caps**: Queue manager restricts simultaneous scrapes to 5 domains max.
+

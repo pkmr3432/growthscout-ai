@@ -12,6 +12,23 @@ from servers.local_search_server.models import LocalSearchInput
 # Instantiate FastMCP server
 mcp = FastMCP("local_search_server")
 
+# Instantiate global Google Maps client on startup for connection reuse
+_gmaps_client = None
+
+def get_gmaps_client() -> googlemaps.Client:
+    global _gmaps_client
+    from unittest.mock import Mock
+    if isinstance(googlemaps.Client, Mock) or _gmaps_client is None:
+        return googlemaps.Client(key=GOOGLE_MAPS_API_KEY, timeout=TIMEOUT_SECONDS)
+    return _gmaps_client
+
+if GOOGLE_MAPS_API_KEY:
+    try:
+        _gmaps_client = get_gmaps_client()
+        logger.info("Initialized global Google Maps client successfully.")
+    except Exception as e:
+        logger.error(f"Failed to initialize global Google Maps client on startup: {str(e)}")
+
 @mcp.tool()
 async def local_business_search(query: str, page_token: str = None) -> str:
     """Queries Google Maps database for local business listing profiles matching niche and city."""
@@ -35,10 +52,9 @@ async def local_business_search(query: str, page_token: str = None) -> str:
     logger.info("Executing evaluation verification metadata check...")
     
     try:
-        # Initialize the Google Maps client with configured timeout
-        gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY, timeout=TIMEOUT_SECONDS)
+        gmaps = get_gmaps_client()
         
-        # Call places API
+        # Call places API using the client
         places_result = gmaps.places(query=query, page_token=page_token)
         
         results = []

@@ -49,50 +49,58 @@ def validate_url_security(url: str) -> None:
     except socket.gaierror:
         logger.warning(f"Could not resolve host: {parsed_url.hostname}. Continuing validation.")
 
+_global_http_client = None
+
+def get_http_client() -> httpx.AsyncClient:
+    global _global_http_client
+    if _global_http_client is None:
+        headers = {"User-Agent": SCRAPER_USER_AGENT}
+        _global_http_client = httpx.AsyncClient(headers=headers, timeout=TIMEOUT_SECONDS, follow_redirects=True)
+    return _global_http_client
+
 async def fetch_page(url: str) -> tuple[int, str]:
     """Helper to fetch webpage content with robots.txt parsing and payload size validation."""
     parsed_url = urlparse(url)
     robots_url = f"{parsed_url.scheme}://{parsed_url.netloc}/robots.txt"
-    headers = {"User-Agent": SCRAPER_USER_AGENT}
     
-    async with httpx.AsyncClient(headers=headers, timeout=TIMEOUT_SECONDS, follow_redirects=True) as client:
-        # Check robots.txt compliance
-        allowed = True
-        try:
-            robots_res = await client.get(robots_url, timeout=5.0)
-            if robots_res.status_code == 200:
-                rp = RobotFileParser()
-                rp.parse(robots_res.text.splitlines())
-                allowed = rp.can_fetch(SCRAPER_USER_AGENT, url)
-        except Exception as e:
-            logger.warning(f"Failed to fetch robots.txt for {url}: {str(e)}. Defaulting to allowed.")
-            
-        if not allowed:
-            logger.warning(f"Robots.txt Disallowed fetch for URL: {url}")
-            return 403, "Robots.txt Blocked"
-            
-        # Stream response to enforce size limits
-        try:
-            async with client.stream("GET", url) as response:
-                if response.status_code != 200:
-                    return response.status_code, ""
+    client = get_http_client()
+    # Check robots.txt compliance
+    allowed = True
+    try:
+        robots_res = await client.get(robots_url, timeout=5.0)
+        if robots_res.status_code == 200:
+            rp = RobotFileParser()
+            rp.parse(robots_res.text.splitlines())
+            allowed = rp.can_fetch(SCRAPER_USER_AGENT, url)
+    except Exception as e:
+        logger.warning(f"Failed to fetch robots.txt for {url}: {str(e)}. Defaulting to allowed.")
+        
+    if not allowed:
+        logger.warning(f"Robots.txt Disallowed fetch for URL: {url}")
+        return 403, "Robots.txt Blocked"
+        
+    # Stream response to enforce size limits
+    try:
+        async with client.stream("GET", url) as response:
+            if response.status_code != 200:
+                return response.status_code, ""
+                
+            content_chunks = []
+            bytes_read = 0
+            async for chunk in response.aiter_text():
+                content_chunks.append(chunk)
+                bytes_read += len(chunk.encode("utf-8"))
+                if bytes_read > MAX_PAYLOAD_SIZE:
+                    logger.error(f"Payload size limit exceeded for URL: {url}")
+                    raise ValueError("Target website payload size exceeded 2MB limit.")
                     
-                content_chunks = []
-                bytes_read = 0
-                async for chunk in response.aiter_text():
-                    content_chunks.append(chunk)
-                    bytes_read += len(chunk.encode("utf-8"))
-                    if bytes_read > MAX_PAYLOAD_SIZE:
-                        logger.error(f"Payload size limit exceeded for URL: {url}")
-                        raise ValueError("Target website payload size exceeded 2MB limit.")
-                        
-                return response.status_code, "".join(content_chunks)
-        except httpx.TimeoutException:
-            logger.error(f"Request timeout for URL: {url}")
-            raise TimeoutError("Target website request timed out.")
-        except Exception as e:
-            logger.error(f"Request failed for URL: {url}: {str(e)}")
-            return 500, f"Request failed: {str(e)}"
+            return response.status_code, "".join(content_chunks)
+    except httpx.TimeoutException:
+        logger.error(f"Request timeout for URL: {url}")
+        raise TimeoutError("Target website request timed out.")
+    except Exception as e:
+        logger.error(f"Request failed for URL: {url}: {str(e)}")
+        return 500, f"Request failed: {str(e)}"
 
 def detect_tech_stack(html: str) -> str:
     """Helper to detect CMS and UI framework using evidence-based heuristics."""

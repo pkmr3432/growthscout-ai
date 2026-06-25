@@ -66,6 +66,11 @@ from .exceptions import InvalidTransitionError, EvidenceValidationError
 from .failure_policy import FailurePolicy
 from .metrics_collector import WorkflowMetricsCollector, InMemoryMetricsCollector
 from .workflow_executor import WorkflowExecutor, TransitionPlan, TraceEntry, ExecutionTrace
+from .runtime_config import RuntimeConfig
+from .preflight import PreflightValidator
+from .circuit_breaker import CircuitBreakerRegistry
+from .cache_layer import RuntimeCacheManager
+from .runtime_services import RuntimeServices
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 
@@ -141,7 +146,11 @@ class GrowthScoutOrchestrator:
     Core coordination class for GrowthScout AI.
     """
 
-    def __init__(self, deps: OrchestratorDependencies) -> None:
+    def __init__(
+        self,
+        deps: OrchestratorDependencies,
+        services: Optional[RuntimeServices] = None,
+    ) -> None:
         self.deps = deps
         self._tc = deps.transition_controller
         self._mg = deps.memory_governor
@@ -153,18 +162,129 @@ class GrowthScoutOrchestrator:
         self._rc = deps.resumability_controller
         self._fp = deps.failure_policy
         self._mc = deps.metrics_collector
+
+        if services is None:
+            from .protocols import SystemClock
+            from .preflight import PreflightValidator
+            config = getattr(deps.failure_policy, "config", None) or RuntimeConfig.load_from_env()
+            cache_mgr = RuntimeCacheManager(
+                ttl_discovery=config.cache_ttl_discovery,
+                ttl_audit=config.cache_ttl_audit,
+            )
+            cbr = getattr(deps.failure_policy, "cb_registry", None)
+            if cbr is None:
+                from .circuit_breaker import CircuitBreakerRegistry
+                cbr = CircuitBreakerRegistry(
+                    failure_threshold=config.circuit_breaker_failure_threshold,
+                    cooldown_seconds=config.circuit_breaker_cooldown_seconds,
+                    success_threshold=config.circuit_breaker_success_threshold,
+                )
+            
+            services = RuntimeServices(
+                config=config,
+                cache_manager=cache_mgr,
+                metrics_collector=deps.metrics_collector,
+                cb_registry=cbr,
+                failure_policy=deps.failure_policy,
+                clock=SystemClock(),
+                event_publisher=deps.event_publisher,
+                audit_writer=deps.audit_writer,
+                checkpoint_interface=deps.checkpoint_interface,
+                worker_registry=deps.worker_registry,
+                preflight_validator=PreflightValidator(config),
+            )
+
+        self.services = services
         self._executor = WorkflowExecutor(
+            services=services,
             tc=self._tc,
-            wr=self._wr,
             mg=self._mg,
             ev=self._ev,
-            aw=self._aw,
-            ci=self._ci,
-            ep=self._ep,
             rc=self._rc,
-            fp=self._fp,
-            mc=self._mc,
         )
+
+    @classmethod
+    async def initialize(
+        cls,
+        config: Optional[RuntimeConfig] = None,
+        bypass_preflight: bool = False,
+    ) -> GrowthScoutOrchestrator:
+        """
+        Runs the 10-step startup lifecycle sequence:
+        1. Load RuntimeConfig
+        2. Validate RuntimeConfig
+        3. Initialize shared clients
+        4. Initialize caches
+        5. Initialize metrics
+        6. Initialize circuit breakers
+        7. Execute preflight health checks
+        8. Initialize WorkerRegistry
+        9. Initialize GrowthScoutOrchestrator
+        10. Accept workflow execution
+        """
+        # 1-2. Load and validate configuration
+        cfg = config or RuntimeConfig.load_from_env()
+
+        # 3. Shared clients are initialized in subprocesses, but we set them up/check here
+        
+        # 4. Initialize caches
+        cache_manager = RuntimeCacheManager(
+            ttl_discovery=cfg.cache_ttl_discovery,
+            ttl_audit=cfg.cache_ttl_audit,
+        )
+
+        # 5. Initialize metrics
+        metrics = InMemoryMetricsCollector()
+
+        # 6. Initialize circuit breakers
+        cb_registry = CircuitBreakerRegistry(
+            failure_threshold=cfg.circuit_breaker_failure_threshold,
+            cooldown_seconds=cfg.circuit_breaker_cooldown_seconds,
+            success_threshold=cfg.circuit_breaker_success_threshold,
+        )
+
+        # 7. Execute preflight health checks
+        validator = PreflightValidator(cfg)
+        health_results = await validator.run_checks()
+        has_downs = any(r.status == "DOWN" for r in health_results)
+        if has_downs and not bypass_preflight:
+            report = "\n".join(f"  - {r.component}: {r.status} ({r.message})" for r in health_results)
+            raise RuntimeError(f"Startup halted due to failed preflight health checks:\n{report}")
+
+        # 8. Initialize WorkerRegistry
+        worker_registry = WorkerRegistry()
+
+        # 9. Initialize GrowthScoutOrchestrator
+        failure_policy = FailurePolicy(config=cfg, cb_registry=cb_registry)
+
+        from .protocols import SystemClock
+        services = RuntimeServices(
+            config=cfg,
+            cache_manager=cache_manager,
+            metrics_collector=metrics,
+            cb_registry=cb_registry,
+            failure_policy=failure_policy,
+            clock=SystemClock(),
+            event_publisher=StdoutEventPublisher(),
+            audit_writer=AuditTrailWriter(),
+            checkpoint_interface=CheckpointInterface(),
+            worker_registry=worker_registry,
+            preflight_validator=validator,
+        )
+
+        deps = OrchestratorDependencies(
+            worker_registry=worker_registry,
+            failure_policy=failure_policy,
+            metrics_collector=metrics,
+            audit_writer=services.audit_writer,
+            checkpoint_interface=services.checkpoint_interface,
+            event_publisher=services.event_publisher,
+        )
+
+        orchestrator = cls(deps, services=services)
+
+        # 10. Accept workflow execution
+        return orchestrator
 
     # ─── Core coordination ────────────────────────────────────────────────────
 

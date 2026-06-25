@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-06-25T10:20:43.898911+00:00",
+  "status": "FAILED",
+  "runtime_config": {
+    "config_version": "1.0.0",
+    "environment": "development",
+    "loaded_at": "2026-06-25T10:20:43.899307+00:00",
+    "instance_id": "inst_2c7cfbee"
+  },
+  "health_checks": [
+    {
+      "category": "CONFIGURATION",
+      "component": "config_version",
+      "status": "UP",
+      "latency_ms": 0.00523999915458262,
+      "message": "Version compatibility verified.",
+      "error_code": null
+    },
+    {
+      "category": "AUTHENTICATION",
+      "component": "google_maps_api_key",
+      "status": "DOWN",
+      "latency_ms": 0.0008799979696050286,
+      "message": "GOOGLE_MAPS_API_KEY is not configured.",
+      "error_code": "CONFIGURATION_ERROR"
+    },
+    {
+      "category": "AUTHENTICATION",
+      "component": "gemini_api_key",
+      "status": "DOWN",
+      "latency_ms": 0.0005559995770454407,
+      "message": "GEMINI_API_KEY is not configured.",
+      "error_code": "CONFIGURATION_ERROR"
+    },
+    {
+      "category": "DEPENDENCIES",
+      "component": "local_search_server",
+      "status": "UP",
+      "latency_ms": 611.4917209997657,
+      "message": "FastMCP server startup verified.",
+      "error_code": null
+    },
+    {
+      "category": "DEPENDENCIES",
+      "component": "web_analyzer_server",
+      "status": "UP",
+      "latency_ms": 613.8774990031379,
+      "message": "FastMCP server startup verified.",
+      "error_code": null
+    }
+  ],
+  "connectivity": {
+    "google_maps": {
+      "status": "SKIPPED",
+      "latency_ms": 0.0,
+      "error": "No API key configured."
+    },
+    "scraper": {
+      "status": "CONNECTED",
+      "latency_ms": 504.10896499670343,
+      "error": null
+    }
+  },
+  "worker_validation": {
+    "business_discovery_agent": "PASSED",
+    "website_analysis_agent": "PASSED",
+    "opportunity_agent": "PASSED",
+    "growth_intelligence_agent": "PASSED"
+  },
+  "execution_timings_ms": {
+    "config_load": 0.1440880005247891,
+    "health_checks": 1225.6219430055353,
+    "connectivity_checks": 504.1332999971928,
+    "worker_runs": 1413.2722330032266,
+    "total": 3143.503432998841
+  },
+  "warnings": [],
+  "failures": [
+    "Component DOWN: AUTHENTICATION / google_maps_api_key - GOOGLE_MAPS_API_KEY is not configured.",
+    "Component DOWN: AUTHENTICATION / gemini_api_key - GEMINI_API_KEY is not configured."
+  ]
+}

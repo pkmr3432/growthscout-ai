@@ -25,6 +25,7 @@ from .interfaces.checkpoint import CheckpointInterface, WorkflowCheckpoint, CURR
 from .interfaces.resumability import ResumabilityController
 from .interfaces.events import (
     EventPublisher,
+    StdoutEventPublisher,
     TransitionExecuted,
     CheckpointSaved,
     WorkerCompleted,
@@ -35,8 +36,12 @@ from .interfaces.events import (
 )
 from .interfaces.worker_invocation import WorkerRegistry, WorkerInvocationRequest, WorkerInvocationResult, RetryPolicy
 from .failure_policy import FailurePolicy
-from .metrics_collector import WorkflowMetricsCollector
+from .metrics_collector import WorkflowMetricsCollector, InMemoryMetricsCollector
 from .exceptions import InvalidTransitionError, EvidenceValidationError, WorkerInvocationError
+from .runtime_config import RuntimeConfig
+from .cache_layer import RuntimeCacheManager
+from .error_codes import RuntimeErrorCode, GrowthScoutRuntimeError
+from .runtime_services import RuntimeServices
 
 from agents.shared.schemas import (
     DiscoveryLead,
@@ -131,33 +136,81 @@ class WorkflowExecutor:
 
     def __init__(
         self,
-        tc: TransitionController,
-        wr: WorkerRegistry,
-        mg: MemoryGovernor,
-        ev: EvidenceValidationHook,
-        aw: AuditTrailWriter,
-        ci: CheckpointInterface,
-        ep: EventPublisher,
-        rc: ResumabilityController,
-        fp: FailurePolicy,
-        mc: WorkflowMetricsCollector,
+        services: Optional[RuntimeServices] = None,
+        tc: Optional[TransitionController] = None,
+        wr: Optional[WorkerRegistry] = None,
+        mg: Optional[MemoryGovernor] = None,
+        ev: Optional[EvidenceValidationHook] = None,
+        aw: Optional[AuditTrailWriter] = None,
+        ci: Optional[CheckpointInterface] = None,
+        ep: Optional[EventPublisher] = None,
+        rc: Optional[ResumabilityController] = None,
+        fp: Optional[FailurePolicy] = None,
+        mc: Optional[WorkflowMetricsCollector] = None,
+        config: Optional[RuntimeConfig] = None,
+        cache_manager: Optional[RuntimeCacheManager] = None,
     ) -> None:
-        self._tc = tc
-        self._wr = wr
-        self._mg = mg
-        self._ev = ev
-        self._aw = aw
-        self._ci = ci
-        self._ep = ep
-        self._rc = rc
-        self._fp = fp
-        self._mc = mc
+        if services is None:
+            from .protocols import SystemClock
+            from .preflight import PreflightValidator
+            from .circuit_breaker import CircuitBreakerRegistry
+            
+            cfg = config or RuntimeConfig.load_from_env()
+            cache_mgr = cache_manager or RuntimeCacheManager(
+                ttl_discovery=cfg.cache_ttl_discovery,
+                ttl_audit=cfg.cache_ttl_audit,
+            )
+            cbr = CircuitBreakerRegistry(
+                failure_threshold=cfg.circuit_breaker_failure_threshold,
+                cooldown_seconds=cfg.circuit_breaker_cooldown_seconds,
+                success_threshold=cfg.circuit_breaker_success_threshold,
+            )
+            fp_resolved = fp or FailurePolicy(config=cfg, cb_registry=cbr)
+            
+            services = RuntimeServices(
+                config=cfg,
+                cache_manager=cache_mgr,
+                metrics_collector=mc or InMemoryMetricsCollector(),
+                cb_registry=cbr,
+                failure_policy=fp_resolved,
+                clock=SystemClock(),
+                event_publisher=ep or StdoutEventPublisher(),
+                audit_writer=aw or AuditTrailWriter(),
+                checkpoint_interface=ci or CheckpointInterface(),
+                worker_registry=wr or WorkerRegistry(),
+                preflight_validator=PreflightValidator(cfg),
+            )
+
+        self.services = services
+        self._tc = tc or TransitionController()
+        self._mg = mg or MemoryGovernor()
+        self._ev = ev or EvidenceValidationHook()
+        self._rc = rc or ResumabilityController(checkpoint_interface=services.checkpoint_interface)
+
+        # Wire up executor fields from services
+        self._config = services.config
+        self._cache_manager = services.cache_manager
+        self._mc = services.metrics_collector
+        self._fp = services.failure_policy
+        self._ep = services.event_publisher
+        self._aw = services.audit_writer
+        self._ci = services.checkpoint_interface
+        self._wr = services.worker_registry
+        
         self._traces: Dict[str, ExecutionTrace] = {}
 
-        # Pluggable lifecycle hooks
+        # Pluggable lifecycle hooks (worker-level)
         self.before_worker_hooks: List[Callable[[WorkerInvocationRequest], None]] = []
         self.after_worker_hooks: List[Callable[[WorkerInvocationRequest, WorkerInvocationResult], None]] = []
         self.validate_output_hooks: List[Callable[[str, BaseModel], None]] = []
+
+        # Workflow-level lifecycle hooks
+        self.before_workflow_hooks: List[Callable[[WorkflowContext], None]] = []
+        self.after_workflow_hooks: List[Callable[[WorkflowContext], None]] = []
+        self.before_state_hooks: List[Callable[[WorkflowContext], None]] = []
+        self.after_state_hooks: List[Callable[[WorkflowContext], None]] = []
+        self.before_transition_hooks: List[Callable[[WorkflowContext, TransitionPlan], None]] = []
+        self.after_transition_hooks: List[Callable[[WorkflowContext, WorkflowContext], None]] = []
 
     def get_trace(self, session_id: str) -> Optional[ExecutionTrace]:
         """Retrieve trace for session."""
@@ -174,6 +227,13 @@ class WorkflowExecutor:
         """
         Run the execution loop until a HITL Gate or Terminal state is reached.
         """
+        for hook in self.before_workflow_hooks:
+            try:
+                hook(context)
+            except Exception:
+                pass
+
+        start_time = self.services.clock.now_utc()
         curr = context
         self._add_trace_entry(curr.session_id, curr.workflow_id, "execution_started", {"start_state": curr.current_state.value})
 
@@ -183,6 +243,8 @@ class WorkflowExecutor:
             if curr.current_state in TERMINAL_STATES:
                 self._add_trace_entry(curr.session_id, curr.workflow_id, "terminal_status", {"state": curr.current_state.value})
                 self._mc.record_completion(curr.session_id, curr.current_state == WorkflowState.COMPLETED)
+                duration_ms = (self.services.clock.now_utc() - start_time).total_seconds() * 1000.0
+                self._mc.record_duration(curr.session_id, duration_ms)
                 break
 
             if node.state_type == StateType.HITL_GATE:
@@ -192,12 +254,24 @@ class WorkflowExecutor:
             # Execute single step
             curr = await self.execute_step(curr)
 
+        for hook in self.after_workflow_hooks:
+            try:
+                hook(curr)
+            except Exception:
+                pass
+
         return curr
 
     async def execute_step(self, context: WorkflowContext) -> WorkflowContext:
         """
         Execute a single workflow node dynamically.
         """
+        for hook in self.before_state_hooks:
+            try:
+                hook(context)
+            except Exception:
+                pass
+
         node = WORKFLOW_TOPOLOGY[context.current_state]
         self._add_trace_entry(context.session_id, context.workflow_id, "state_entered", {"state": context.current_state.value})
 
@@ -208,21 +282,29 @@ class WorkflowExecutor:
                 create_checkpoint=True,
                 publish_events=True,
             )
-            return self._apply_transition_plan(context, plan, "orchestrator_agent", "Start pipeline")
+            result_context = self._apply_transition_plan(context, plan, "orchestrator_agent", "Start pipeline")
 
         elif node.state_type == StateType.PARTITION_NODE:
             # LEAD_PARTITIONING logic
-            return await self._execute_partitioning(context)
+            result_context = await self._execute_partitioning(context)
 
         elif node.state_type == StateType.AGENT_NODE:
-            return await self._execute_agent_node(context)
+            result_context = await self._execute_agent_node(context)
 
         else:
             # Fallback for unexpected nodes
-            return context
+            result_context = context
+
+        for hook in self.after_state_hooks:
+            try:
+                hook(result_context)
+            except Exception:
+                pass
+
+        return result_context
 
     async def _execute_partitioning(self, context: WorkflowContext) -> WorkflowContext:
-        now = datetime.now(timezone.utc)
+        now = self.services.clock.now_utc()
         leads = context.discovery_results.leads if context.discovery_results else []
 
         website_leads = [
@@ -457,7 +539,36 @@ class WorkflowExecutor:
         input_payload: BaseModel,
         output_schema: Type[BaseModel],
     ) -> WorkerInvocationResult:
-        correlation_id = f"corr_{uuid.uuid4().hex[:8]}"
+        correlation_id = context.execution_metadata.correlation_id
+
+        # Cache hit check
+        cached_val = None
+        cache_key = ""
+        if worker_name == "business_discovery_agent":
+            niche = getattr(input_payload, "niche", "")
+            location = getattr(input_payload, "location", "")
+            cache_key = f"{niche} @ {location}"
+            cached_val = self._cache_manager.discovery.get(cache_key)
+        elif worker_name == "website_analysis_agent":
+            url = getattr(input_payload, "website_url", "")
+            cache_key = url
+            cached_val = self._cache_manager.audit.get(cache_key)
+
+        if cached_val is not None:
+            self._add_trace_entry(context.session_id, context.workflow_id, "cache_hit", {
+                "worker_name": worker_name,
+                "key": cache_key,
+                "correlation_id": correlation_id
+            })
+            return WorkerInvocationResult(
+                worker_name=worker_name,
+                correlation_id=correlation_id,
+                success=True,
+                output=cached_val,
+                execution_duration_ms=0.0,
+                retries_attempted=0
+            )
+
         request = WorkerInvocationRequest(
             worker_name=worker_name,
             input_payload=input_payload,
@@ -477,15 +588,18 @@ class WorkflowExecutor:
             attempts_made += 1
             self._mc.record_worker_execution(context.session_id, worker_name)
 
-            # Trigger before_worker lifecycle hooks
+             # Trigger before_worker lifecycle hooks
             for hook in self.before_worker_hooks:
                 try:
                     hook(request)
                 except Exception:
                     pass
 
-            start_time = datetime.now(timezone.utc)
+            start_time = self.services.clock.now_utc()
             try:
+                # Check Circuit Breakers before execution
+                self._fp.check_circuit_breakers(worker_name, correlation_id)
+
                 # Resolve LlmAgent via registry
                 agent_instance = self._wr.get(worker_name)
                 
@@ -499,7 +613,18 @@ class WorkflowExecutor:
                     except Exception:
                         pass
 
-                duration = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000.0
+                # Record success on circuit breaker
+                self._fp.record_success(worker_name)
+
+                # Populate Cache on success
+                if worker_name == "business_discovery_agent" and cache_key:
+                    self._cache_manager.discovery.set(cache_key, out)
+                elif worker_name == "website_analysis_agent" and cache_key:
+                    self._cache_manager.audit.set(cache_key, out)
+
+                duration = (self.services.clock.now_utc() - start_time).total_seconds() * 1000.0
+                self._mc.record_latency(context.session_id, worker_name, duration)
+
                 result = WorkerInvocationResult(
                     worker_name=worker_name,
                     correlation_id=correlation_id,
@@ -520,7 +645,7 @@ class WorkflowExecutor:
                     event_id=f"ev_{uuid.uuid4().hex[:8]}",
                     session_id=context.session_id,
                     workflow_id=context.workflow_id,
-                    occurred_at=datetime.now(timezone.utc),
+                    occurred_at=self.services.clock.now_utc(),
                     correlation_id=correlation_id,
                     worker_name=worker_name,
                     output_schema=output_schema.__name__,
@@ -530,26 +655,64 @@ class WorkflowExecutor:
                 return result
 
             except Exception as e:
-                # Record exception
-                duration = (datetime.now(timezone.utc) - start_time).total_seconds() * 1000.0
+                # Classify exception into GrowthScoutRuntimeError
+                if isinstance(e, GrowthScoutRuntimeError):
+                    runtime_error = e
+                else:
+                    service = self._fp.get_service_for_worker(worker_name)
+                    err_code = RuntimeErrorCode.UNEXPECTED_ERROR
+                    retryable = True
+                    
+                    if isinstance(e, asyncio.TimeoutError):
+                        err_code = RuntimeErrorCode.TIMEOUT
+                        retryable = True
+                    elif "auth" in str(e).lower() or "api key" in str(e).lower() or "unauthorized" in str(e).lower():
+                        err_code = RuntimeErrorCode.AUTH_ERROR
+                        retryable = False
+                    elif "rate limit" in str(e).lower() or "quota" in str(e).lower() or "429" in str(e).lower():
+                        err_code = RuntimeErrorCode.RATE_LIMIT
+                        retryable = True
+                    elif "connection" in str(e).lower() or "network" in str(e).lower() or "dns" in str(e).lower():
+                        err_code = RuntimeErrorCode.NETWORK_ERROR
+                        retryable = True
+                    elif isinstance(e, ValueError):
+                        err_code = RuntimeErrorCode.VALIDATION_ERROR
+                        retryable = False
+                        
+                    runtime_error = GrowthScoutRuntimeError(
+                        error_code=err_code,
+                        message=str(e),
+                        service=service,
+                        retryable=retryable,
+                        correlation_id=correlation_id,
+                        original_exception=e,
+                    )
+
+                # Record failure on circuit breaker
+                self._fp.record_failure(worker_name, runtime_error)
+
+                duration = (self.services.clock.now_utc() - start_time).total_seconds() * 1000.0
+                self._mc.record_latency(context.session_id, f"{worker_name}_error", duration)
+
                 result = WorkerInvocationResult(
                     worker_name=worker_name,
                     correlation_id=correlation_id,
                     success=False,
-                    error_message=str(e),
+                    error_message=runtime_error.message,
                     execution_duration_ms=duration,
                     retries_attempted=attempts_made - 1
                 )
 
                 # Check if failure policy permits retry
-                if self._fp.should_retry(request, attempts_made):
+                if self._fp.should_retry(request, attempts_made, runtime_error):
                     self._mc.record_worker_retry(context.session_id, worker_name)
                     delay = self._fp.get_retry_delay(request, attempts_made)
                     self._add_trace_entry(context.session_id, context.workflow_id, "worker_retry", {
                         "worker_name": worker_name,
                         "attempt": attempts_made,
                         "delay_seconds": delay,
-                        "reason": str(e)
+                        "reason": runtime_error.message,
+                        "error_code": runtime_error.error_code.value,
                     })
                     await asyncio.sleep(delay)
                     continue
@@ -566,10 +729,10 @@ class WorkflowExecutor:
                     event_id=f"ev_{uuid.uuid4().hex[:8]}",
                     session_id=context.session_id,
                     workflow_id=context.workflow_id,
-                    occurred_at=datetime.now(timezone.utc),
+                    occurred_at=self.services.clock.now_utc(),
                     correlation_id=correlation_id,
                     worker_name=worker_name,
-                    error_message=str(e),
+                    error_message=runtime_error.message,
                     retries_made=attempts_made
                 ))
 
@@ -614,7 +777,13 @@ class WorkflowExecutor:
         acting_agent: str,
         reason: str,
     ) -> WorkflowContext:
-        now = datetime.now(timezone.utc)
+        for hook in self.before_transition_hooks:
+            try:
+                hook(context, plan)
+            except Exception:
+                pass
+
+        now = self.services.clock.now_utc()
         target_state = plan.target_state
         target_node = WORKFLOW_TOPOLOGY[target_state]
 
@@ -741,6 +910,7 @@ class WorkflowExecutor:
                 checkpoint_version=checkpoint_version
             )
             self._ci.save(checkpoint)
+            self._mc.record_checkpoint_save(new_context.session_id)
             self._add_trace_entry(new_context.session_id, new_context.workflow_id, "checkpoint_created", {"version": checkpoint_version})
 
             if plan.publish_events:
@@ -766,5 +936,11 @@ class WorkflowExecutor:
                 to_state=target_state,
                 reason=reason
             ))
+
+        for hook in self.after_transition_hooks:
+            try:
+                hook(context, new_context)
+            except Exception:
+                pass
 
         return new_context

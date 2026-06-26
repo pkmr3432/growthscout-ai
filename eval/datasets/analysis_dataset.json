@@ -1,17 +1,835 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Website Analysis Evaluation Dataset",
+  "description": "Evaluation dataset for website crawling, auditing, and presence diagnostics.",
+  "metadata": {
+    "dataset_version": "1.1.0",
+    "schema_version": "1.0.0",
+    "generated_in": "Sprint 6.2",
+    "last_reviewed": "2026-06-26",
+    "maintainer": "Lead Evaluation Engineer"
+  },
+  "type": "object",
+  "required": [
+    "eval_cases"
+  ],
+  "properties": {
+    "eval_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "eval_case_id",
+          "prompt",
+          "metadata"
+        ],
+        "properties": {
+          "eval_case_id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "object",
+            "required": [
+              "role",
+              "parts"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user"
+                ]
+              },
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "text"
+                  ],
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "id",
+              "difficulty",
+              "category",
+              "business_type",
+              "source",
+              "sprint_created",
+              "tags",
+              "expected_result"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "difficulty": {
+                "type": "string",
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "business_type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "synthesized"
+                ]
+              },
+              "sprint_created": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expected_result": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "eval_cases": [
     {
-      "eval_case_id": "austin_boiler_analysis",
+      "eval_case_id": "ANAL-M-001",
       "prompt": {
         "role": "user",
-        "parts": [{"text": "Perform webpresence analysis on http://austinboilerexperts.com"}]
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://austinboilerexperts.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-001",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://austinboilerexperts.com and correctly identify performance, SEO, or structural presence gaps."
       }
     },
     {
-      "eval_case_id": "seattle_dental_analysis",
+      "eval_case_id": "ANAL-M-002",
       "prompt": {
         "role": "user",
-        "parts": [{"text": "Perform webpresence analysis on http://seattledentistry.com"}]
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://seattledentistry.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-002",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://seattledentistry.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-003",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a comprehensive website audit for http://chicagohvacrepair.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-003",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "hvac",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "hvac",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://chicagohvacrepair.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-004",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the web presence and digital footprint of http://miamiroofingpro.net"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-004",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://miamiroofingpro.net and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-005",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Audit the website and check for presence flaws at http://bostonchiroclinic.org"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-005",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://bostonchiroclinic.org and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-006",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Scan the website and SEO performance of http://denverelectricexperts.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-006",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://denverelectricexperts.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-007",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://portlandgreenlandscapes.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-007",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "landscaper",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "landscaper",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://portlandgreenlandscapes.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-008",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the technical presence for http://atlantaexterminators.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-008",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://atlantaexterminators.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-009",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a digital audit on http://dallasfastlocksmith.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-009",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "locksmith",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "locksmith",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://dallasfastlocksmith.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-010",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Run a website presence scan on http://sandiegoeyes.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-010",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "optometrist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "optometrist",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://sandiegoeyes.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-011",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://phoenixphysicaltherapy.net"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-011",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://phoenixphysicaltherapy.net and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-012",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a website audit for http://phillymaidservice.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-012",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "house_cleaning",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "house_cleaning",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://phillymaidservice.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-013",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the digital footprint and SEO markup of http://houstonautorepair.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-013",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "auto_repair",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "auto_repair",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://houstonautorepair.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-014",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Run a digital presence analysis on http://orlandovetcare.org"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-014",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "veterinarian",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "veterinarian",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://orlandovetcare.org and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-015",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://nashvillecpa.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-015",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "tax_prep",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tax_prep",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://nashvillecpa.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-016",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Audit the digital presence of http://vegaspaintingpros.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-016",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "painter",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "painter",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://vegaspaintingpros.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-017",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the SEO metadata and performance for http://minneapolistreeservice.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-017",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "tree_service",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tree_service",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://minneapolistreeservice.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-018",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Audit the tech stack and loading times of http://sanjosetutoring.org"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-018",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "tutor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tutor",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://sanjosetutoring.org and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-019",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a digital audit on http://charlottefitstudio.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-019",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://charlottefitstudio.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-020",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://detroitroofingexperts.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-020",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://detroitroofingexperts.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-021",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the digital presence of http://slcelectrical.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-021",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://slcelectrical.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-022",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a website presence scan on http://stlouispestpro.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-022",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://stlouispestpro.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-023",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://tampabayplumbing.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-023",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://tampabayplumbing.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-024",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a comprehensive website audit for http://austindentistclinic.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-024",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://austindentistclinic.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-M-025",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the tech footprint and SEO markup of http://chicagochiropractic.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-M-025",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://chicagochiropractic.com and correctly identify performance, SEO, or structural presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-S-026",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform webpresence analysis on http://tampalandscapingpros.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-S-026",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "landscaper",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "landscaper",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://tampalandscapingpros.com and correctly identify presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-S-027",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Perform a comprehensive website audit for http://phoenixcpagroup.net"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-S-027",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "tax_prep",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "tax_prep",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://phoenixcpagroup.net and correctly identify presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-S-028",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze the web presence and digital footprint of http://phillycleaningexperts.org"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-S-028",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "house_cleaning",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "house_cleaning",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://phillycleaningexperts.org and correctly identify presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-S-029",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Audit the website and check for presence flaws at http://bostonpestdefense.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-S-029",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "pest_control",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "pest_control",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://bostonpestdefense.com and correctly identify presence gaps."
+      }
+    },
+    {
+      "eval_case_id": "ANAL-S-030",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Scan the website and SEO performance of http://denverautodetail.com"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "ANAL-S-030",
+        "difficulty": "easy",
+        "category": "website_audit",
+        "business_type": "auto_repair",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "auto_repair",
+          "crawling"
+        ],
+        "expected_result": "Crawl and audit http://denverautodetail.com and correctly identify presence gaps."
       }
     }
   ]

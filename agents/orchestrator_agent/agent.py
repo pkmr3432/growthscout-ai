@@ -522,3 +522,4 @@ agent = LlmAgent(
     description=_config["description"],
     tools=[],  # Orchestrator has zero direct tools — routing authority only.
 )
+root_agent = agent

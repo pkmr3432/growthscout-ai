@@ -7,6 +7,8 @@ metrics_to_run:
   - final_response_quality
   - safety
   - lead_score_correctness # Selected from custom_metrics pool below
+  - business_recommendation_value # Selected from custom_metrics pool below
+  - report_readability # Selected from custom_metrics pool below
 
 custom_metrics:
   - name: lead_score_correctness
@@ -47,3 +49,54 @@ custom_metrics:
               return {'score': 1.0, 'explanation': f'Correct score of {lead_score} matches gaps.'}
           else:
               return {'score': 0.0, 'explanation': f'Incorrect score. Expected {expected_score}, got {lead_score}.'}
+
+  - name: business_recommendation_value
+    description: "Evaluates the relevance, actionability, prioritization, business impact explanation, and practical usefulness of recommendations in consulting engagements."
+    prompt_template: |
+      You are an expert business consultant grading a Growth Intelligence Report produced by an AI agent.
+      Assess the agent's response based on the following five criteria, scoring each from 1 to 5:
+
+      1. Relevance: Are the identified opportunities directly aligned with the target business niche, constraints, and gaps?
+      2. Actionability: Are the recommendations concrete, clear, and executable by a non-technical business owner?
+      3. Prioritization: Are higher-scoring gaps prioritized in the campaign outline and report hierarchy?
+      4. Business Impact Explanation: Does the report translate findings into business consequences (revenue, conversion, retention)?
+      5. Consulting Usefulness: Would a consultant feel confident presenting this report to a client without manual edits?
+
+      User Prompt (Context):
+      {prompt}
+
+      Agent's Final Response (Report):
+      {response}
+
+      Full Trace (Tool Calls & Logs Context):
+      {agent_data}
+
+      Return your verdict as a JSON object with "score" and "explanation" keys.
+      The score must be a float between 0.0 and 1.0, representing the average of the five criteria (divided by 5).
+      JSON format:
+      {
+        "score": <float between 0.0 and 1.0>,
+        "explanation": "<detailed rationale covering each of the 5 criteria>"
+      }
+
+  - name: report_readability
+    description: "Measures the logical flow, tone, clarity, conciseness, and presentation of the markdown report."
+    prompt_template: |
+      You are an expert editor grading a Growth Intelligence Report produced by an AI agent.
+      Assess the agent's response based on the following four criteria, scoring each from 1 to 5:
+
+      1. Organization & Logical Flow: Clear heading hierarchy, seamless transition between audit findings and recommendations.
+      2. Clarity & Readability: Plain language, avoids overly complex syntax, accessible to SMB owners.
+      3. Concise Language & Minimal Repetition: No duplicate paragraphs or circular descriptions.
+      4. Professional Tone: Consultative, authoritative, encouraging.
+
+      Agent's Final Response (Report):
+      {response}
+
+      Return your verdict as a JSON object with "score" and "explanation" keys.
+      The score must be a float between 0.0 and 1.0, representing the average of the four criteria (divided by 5).
+      JSON format:
+      {
+        "score": <float between 0.0 and 1.0>,
+        "explanation": "<detailed rationale covering each of the 4 criteria>"
+      }

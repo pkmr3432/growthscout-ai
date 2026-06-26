@@ -2,6 +2,7 @@
 # This file is parsed by agents-cli to coordinate agent and skill relationships.
 
 manifest_version: "1.0.0"
+agent_directory: "orchestrator_agent"
 project:
   name: "growthscout-ai"
   region: "us-central1"

@@ -1,17 +1,839 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Discovery Evaluation Dataset",
+  "description": "Evaluation dataset for business discovery, location queries, and coordinate translation.",
+  "metadata": {
+    "dataset_version": "1.1.0",
+    "schema_version": "1.0.0",
+    "generated_in": "Sprint 6.2",
+    "last_reviewed": "2026-06-26",
+    "maintainer": "Lead Evaluation Engineer"
+  },
+  "type": "object",
+  "required": [
+    "eval_cases"
+  ],
+  "properties": {
+    "eval_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "eval_case_id",
+          "prompt",
+          "metadata"
+        ],
+        "properties": {
+          "eval_case_id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "object",
+            "required": [
+              "role",
+              "parts"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user"
+                ]
+              },
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "text"
+                  ],
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "id",
+              "difficulty",
+              "category",
+              "business_type",
+              "source",
+              "sprint_created",
+              "tags",
+              "expected_result"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "difficulty": {
+                "type": "string",
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "business_type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "synthesized"
+                ]
+              },
+              "sprint_created": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expected_result": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "eval_cases": [
     {
-      "eval_case_id": "austin_plumbers_search",
+      "eval_case_id": "DISC-M-001",
       "prompt": {
         "role": "user",
-        "parts": [{"text": "Find plumbing services in Austin, Texas."}]
+        "parts": [
+          {
+            "text": "Find plumbing services in Austin, Texas."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-001",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "austin"
+        ],
+        "expected_result": "Successfully locate plumber business leads in Austin matching query criteria."
       }
     },
     {
-      "eval_case_id": "seattle_dentists_search",
+      "eval_case_id": "DISC-M-002",
       "prompt": {
         "role": "user",
-        "parts": [{"text": "Find dental clinics in Seattle, WA."}]
+        "parts": [
+          {
+            "text": "Find dental clinics in Seattle, WA."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-002",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "seattle"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Seattle matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-003",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Locate heating and air conditioning repair services in Chicago, Illinois."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-003",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "hvac",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "hvac",
+          "chicago"
+        ],
+        "expected_result": "Successfully locate hvac business leads in Chicago matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-004",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for top-rated roofing contractors in Miami, FL."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-004",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "miami"
+        ],
+        "expected_result": "Successfully locate roofer business leads in Miami matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-005",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Can you find chiropractors near Boston, Massachusetts?"
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-005",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "boston"
+        ],
+        "expected_result": "Successfully locate chiropractor business leads in Boston matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-006",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Identify local electricians offering residential services in Denver, CO."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-006",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "denver"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Denver matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-007",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Look up landscaping and lawn care businesses in Portland, Oregon."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-007",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "landscaper",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "landscaper",
+          "portland"
+        ],
+        "expected_result": "Successfully locate landscaper business leads in Portland matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-008",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find exterminators and pest control companies in Atlanta, Georgia."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-008",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "atlanta"
+        ],
+        "expected_result": "Successfully locate pest_control business leads in Atlanta matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-009",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for 24-hour emergency locksmith services in Dallas, TX."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-009",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "locksmith",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "locksmith",
+          "dallas"
+        ],
+        "expected_result": "Successfully locate locksmith business leads in Dallas matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-010",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find eye doctors and optometrist clinics in San Diego, California."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-010",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "optometrist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "optometrist",
+          "san_diego"
+        ],
+        "expected_result": "Successfully locate optometrist business leads in San Diego matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-011",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Locate physical therapy centers in Phoenix, AZ."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-011",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "physiotherapy",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "physiotherapy",
+          "phoenix"
+        ],
+        "expected_result": "Successfully locate physiotherapy business leads in Phoenix matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-012",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find professional maid and home cleaning services in Philadelphia, Pennsylvania."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-012",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "house_cleaning",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "house_cleaning",
+          "philadelphia"
+        ],
+        "expected_result": "Successfully locate house_cleaning business leads in Philadelphia matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-013",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Locate independent auto mechanic shops in Houston, TX."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-013",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "houston"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Houston matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-014",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for veterinary clinics and animal hospitals in Orlando, Florida."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-014",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "veterinarian",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "veterinarian",
+          "orlando"
+        ],
+        "expected_result": "Successfully locate veterinarian business leads in Orlando matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-015",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Identify local CPAs and tax preparation services in Nashville, Tennessee."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-015",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "nashville"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Nashville matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-016",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find residential and commercial painting contractors in Las Vegas, NV."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-016",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "las_vegas"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Las Vegas matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-017",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find tree removal and trimming services in Minneapolis, MN."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-017",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "tree_service",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tree_service",
+          "minneapolis"
+        ],
+        "expected_result": "Successfully locate tree_service business leads in Minneapolis matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-018",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Locate math tutoring centers for kids in San Jose, CA."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-018",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "tutor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tutor",
+          "san_jose"
+        ],
+        "expected_result": "Successfully locate tutor business leads in San Jose matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-019",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for independent fitness gyms and personal training studios in Charlotte, NC."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-019",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "charlotte"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Charlotte matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-020",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for AC repair services in Austin, TX but limit the lead count to 5."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-020",
+        "difficulty": "medium",
+        "category": "business_discovery",
+        "business_type": "hvac",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "hvac",
+          "austin",
+          "limit_constraint"
+        ],
+        "expected_result": "Successfully locate hvac business leads in Austin matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-021",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Retrieve up to 8 emergency plumbing leads in Seattle."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-021",
+        "difficulty": "medium",
+        "category": "business_discovery",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "seattle",
+          "limit_constraint"
+        ],
+        "expected_result": "Successfully locate plumber business leads in Seattle matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-022",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for local family dental offices in Chicago, IL, maximum 10 leads."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-022",
+        "difficulty": "medium",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "chicago",
+          "limit_constraint"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Chicago matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-023",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find roofing repair companies operating in Detroit, Michigan."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-023",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "detroit"
+        ],
+        "expected_result": "Successfully locate roofer business leads in Detroit matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-024",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Identify local electricians in Salt Lake City, Utah."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-024",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "salt_lake_city"
+        ],
+        "expected_result": "Successfully locate dentist business leads in Salt Lake City matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-M-025",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for pest control and exterminator services in St. Louis, Missouri."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-M-025",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "st._louis"
+        ],
+        "expected_result": "Successfully locate pest_control business leads in St. Louis matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-S-026",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find landscaping services in Tampa, FL."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-S-026",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "landscaper",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "landscaper",
+          "tampa"
+        ],
+        "expected_result": "Successfully locate landscaper business leads in Tampa matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-S-027",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find accounting firms in Phoenix, Arizona."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-S-027",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "tax_prep",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "tax_prep",
+          "phoenix"
+        ],
+        "expected_result": "Successfully locate tax_prep business leads in Phoenix matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-S-028",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Search for commercial cleaning agencies near Philadelphia, Pennsylvania."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-S-028",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "house_cleaning",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "house_cleaning",
+          "philadelphia"
+        ],
+        "expected_result": "Successfully locate house_cleaning business leads in Philadelphia matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-S-029",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Locate pest control services in Boston, MA."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-S-029",
+        "difficulty": "easy",
+        "category": "business_discovery",
+        "business_type": "pest_control",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "pest_control",
+          "boston"
+        ],
+        "expected_result": "Successfully locate pest_control business leads in Boston matching query criteria."
+      }
+    },
+    {
+      "eval_case_id": "DISC-S-030",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Find auto detailing shops in Denver, CO, limit 3 leads."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "DISC-S-030",
+        "difficulty": "medium",
+        "category": "business_discovery",
+        "business_type": "auto_repair",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "auto_repair",
+          "denver",
+          "limit_constraint"
+        ],
+        "expected_result": "Successfully locate auto_repair business leads in Denver matching query criteria."
       }
     }
   ]

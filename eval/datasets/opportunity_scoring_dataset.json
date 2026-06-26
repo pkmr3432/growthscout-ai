@@ -3,16 +3,16 @@
   "title": "GrowthScout AI - Opportunity Scoring Dataset Specification",
   "description": "Evaluation dataset for Opportunity Classification, Opportunity Scoring, Confidence Scoring, and Business Impact Analysis skills.",
   "metadata": {
-    "version": "1.0.0",
-    "field_definitions": {
-      "case_id": "Unique identifier for the evaluation test case.",
-      "edge_case_type": "Label identifying standard behavior or specific edge cases (e.g., no_website, failed_audit, missing_competitor, incomplete_seo, robots_blocked).",
-      "inputs": "The raw evidence findings generated from crawler tools, Maps search, and competitive benchmarks.",
-      "expected_outputs": "The expected classifications, scores, confidence levels, and impact outcomes that the Opportunity Agent must resolve."
-    }
+    "dataset_version": "1.1.0",
+    "schema_version": "1.0.0",
+    "generated_in": "Sprint 6.2",
+    "last_reviewed": "2026-06-26",
+    "maintainer": "Lead Evaluation Engineer"
   },
   "type": "object",
-  "required": ["test_cases"],
+  "required": [
+    "test_cases"
+  ],
   "properties": {
     "test_cases": {
       "type": "array",
@@ -23,56 +23,74 @@
           "edge_case_type",
           "inputs",
           "expected_outputs",
-          "confidence_degradation_expectations"
+          "confidence_degradation_expectations",
+          "metadata"
         ],
         "properties": {
-          "case_id": { "type": "string" },
-          "edge_case_type": { "type": "string" },
+          "case_id": {
+            "type": "string"
+          },
+          "edge_case_type": {
+            "type": "string"
+          },
           "inputs": {
-            "type": "object",
-            "required": [
-              "audit_findings",
-              "seo_findings",
-              "performance_findings",
-              "conversion_findings",
-              "reputation_findings",
-              "competitor_benchmarks"
-            ],
-            "properties": {
-              "audit_findings": { "type": "object" },
-              "seo_findings": { "type": "object" },
-              "performance_findings": { "type": "object" },
-              "conversion_findings": { "type": "object" },
-              "reputation_findings": { "type": "object" },
-              "competitor_benchmarks": { "type": "object" }
-            }
+            "type": "object"
           },
           "expected_outputs": {
-            "type": "object",
-            "required": [
-              "opportunity_category",
-              "opportunity_score",
-              "confidence_level",
-              "confidence_reasoning",
-              "business_impact_analysis"
-            ],
-            "properties": {
-              "opportunity_category": { "type": "string" },
-              "opportunity_score": { "type": ["integer", "null"] },
-              "confidence_level": { "type": "string" },
-              "confidence_reasoning": { "type": "string" },
-              "business_impact_analysis": { "type": "object" }
-            }
+            "type": "object"
           },
           "confidence_degradation_expectations": {
+            "type": "object"
+          },
+          "metadata": {
             "type": "object",
-            "required": ["applied_penalties", "expected_degradation_reason"],
+            "required": [
+              "id",
+              "difficulty",
+              "category",
+              "business_type",
+              "source",
+              "sprint_created",
+              "tags",
+              "expected_result"
+            ],
             "properties": {
-              "applied_penalties": {
-                "type": "array",
-                "items": { "type": "string" }
+              "id": {
+                "type": "string"
               },
-              "expected_degradation_reason": { "type": "string" }
+              "difficulty": {
+                "type": "string",
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "business_type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "synthesized"
+                ]
+              },
+              "sprint_created": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expected_result": {
+                "type": "string"
+              }
             }
           }
         }
@@ -81,7 +99,7 @@
   },
   "test_cases": [
     {
-      "case_id": "scoring_case_001_standard",
+      "case_id": "OPPS-M-001",
       "edge_case_type": "standard_dentist_austin",
       "inputs": {
         "audit_findings": {
@@ -126,10 +144,22 @@
       "confidence_degradation_expectations": {
         "applied_penalties": [],
         "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-001",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_dentist_austin"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     },
     {
-      "case_id": "scoring_case_002_no_website",
+      "case_id": "OPPS-M-002",
       "edge_case_type": "no_website_business",
       "inputs": {
         "audit_findings": {
@@ -160,12 +190,26 @@
         }
       },
       "confidence_degradation_expectations": {
-        "applied_penalties": ["no_website_audit_degradation"],
+        "applied_penalties": [
+          "no_website_audit_degradation"
+        ],
         "expected_degradation_reason": "Confidence degraded to Medium due to lack of direct website performance crawling logs."
+      },
+      "metadata": {
+        "id": "OPPS-M-002",
+        "difficulty": "medium",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "no_website_business"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     },
     {
-      "case_id": "scoring_case_003_failed_audit",
+      "case_id": "OPPS-M-003",
       "edge_case_type": "failed_audit",
       "inputs": {
         "audit_findings": {
@@ -194,12 +238,26 @@
         }
       },
       "confidence_degradation_expectations": {
-        "applied_penalties": ["failed_website_audit_penalty"],
+        "applied_penalties": [
+          "failed_website_audit_penalty"
+        ],
         "expected_degradation_reason": "Confidence degraded to Low. Missing target website evidence blocks performance scoring."
+      },
+      "metadata": {
+        "id": "OPPS-M-003",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "failed_audit"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     },
     {
-      "case_id": "scoring_case_004_missing_competitor",
+      "case_id": "OPPS-M-004",
       "edge_case_type": "missing_competitor_data",
       "inputs": {
         "audit_findings": {
@@ -241,12 +299,26 @@
         }
       },
       "confidence_degradation_expectations": {
-        "applied_penalties": ["missing_competitor_data_penalty"],
+        "applied_penalties": [
+          "missing_competitor_data_penalty"
+        ],
         "expected_degradation_reason": "Confidence degraded by one level to Medium due to lack of local benchmark comparison details."
+      },
+      "metadata": {
+        "id": "OPPS-M-004",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "missing_competitor_data"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     },
     {
-      "case_id": "scoring_case_005_incomplete_seo",
+      "case_id": "OPPS-M-005",
       "edge_case_type": "incomplete_seo_audit",
       "inputs": {
         "audit_findings": {
@@ -288,12 +360,26 @@
         }
       },
       "confidence_degradation_expectations": {
-        "applied_penalties": ["incomplete_seo_audit_penalty"],
+        "applied_penalties": [
+          "incomplete_seo_audit_penalty"
+        ],
         "expected_degradation_reason": "Confidence degraded by one level to Medium due to empty target SEO meta findings."
+      },
+      "metadata": {
+        "id": "OPPS-M-005",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "incomplete_seo_audit"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     },
     {
-      "case_id": "scoring_case_006_robots_blocked",
+      "case_id": "OPPS-M-006",
       "edge_case_type": "robots_txt_blocked",
       "inputs": {
         "audit_findings": {
@@ -322,8 +408,1390 @@
         }
       },
       "confidence_degradation_expectations": {
-        "applied_penalties": ["robots_txt_blocked_degradation"],
+        "applied_penalties": [
+          "robots_txt_blocked_degradation"
+        ],
         "expected_degradation_reason": "Confidence degraded to Low. Scraper blocked by target robots.txt rules."
+      },
+      "metadata": {
+        "id": "OPPS-M-006",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "robots_txt_blocked"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-007",
+      "edge_case_type": "no_website_business",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "domain_does_not_exist"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.1,
+          "review_count": 18
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.7,
+          "average_competitor_review_count": 120,
+          "average_competitor_page_load_time_seconds": 1.7,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "No Website Opportunity",
+        "opportunity_score": 90,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence degraded to Medium due to missing website crawl data. Reputation opportunity score is computed correctly based on competitor metrics.",
+        "business_impact_analysis": {
+          "No Website Opportunity": "Lacking a digital site prevents captures of local organic Google search volume."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "no_website_audit_degradation"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Medium due to missing target website crawler results."
+      },
+      "metadata": {
+        "id": "OPPS-M-007",
+        "difficulty": "medium",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "no_website_business"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-008",
+      "edge_case_type": "robots_txt_blocked",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "robots_txt_block"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 32
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 100,
+          "average_competitor_page_load_time_seconds": 1.5,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 50,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Crawling blocked by robots.txt constraint rules. Opportunity scoring on website metrics is blocked.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Reputation gap relative to competitor review counts."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "robots_txt_blocked_degradation"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Low. Scraper blocked by target robots.txt rules."
+      },
+      "metadata": {
+        "id": "OPPS-M-008",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "robots_txt_blocked"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-009",
+      "edge_case_type": "website_timeout",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "request_timeout"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.3,
+          "review_count": 22
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 115,
+          "average_competitor_page_load_time_seconds": 1.6,
+          "average_competitor_schema_org_adoption": 0.5
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 55,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Crawling failed due to website timeout. Website metrics cannot be analyzed, limiting scoring to reputation.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Low local reviews and search rating reduces online consumer trust index."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "failed_website_audit_penalty"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Low. Target site timeout blocks website analysis parameters."
+      },
+      "metadata": {
+        "id": "OPPS-M-009",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "website_timeout"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-010",
+      "edge_case_type": "missing_metadata",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Squarespace",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": false,
+          "meta_description_present": false,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 3.2,
+          "mobile_responsiveness_score": 68
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.5,
+          "review_count": 55
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 115,
+          "average_competitor_page_load_time_seconds": 1.65,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "SEO Opportunity",
+        "opportunity_score": 65,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence as crawling succeeded and target lacks fundamental HTML metadata (meta title/description).",
+        "business_impact_analysis": {
+          "SEO Opportunity": "Missing key metadata tags reduces organic search ranking indexing by Google bots."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. Complete crawler data retrieved."
+      },
+      "metadata": {
+        "id": "OPPS-M-010",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "missing_metadata"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-011",
+      "edge_case_type": "missing_competitor_data",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": false
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.8,
+          "mobile_responsiveness_score": 72
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 3.8,
+          "review_count": 14
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": null,
+          "average_competitor_review_count": null,
+          "average_competitor_page_load_time_seconds": null,
+          "average_competitor_schema_org_adoption": null
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 45,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to missing competitor cohort benchmarks. Score based on static threshold limits.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Low local reputation score (3.8) limits client conversion rate."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "missing_competitor_data_penalty"
+        ],
+        "expected_degradation_reason": "Confidence degraded by one level to Medium due to empty local competitor benchmarks."
+      },
+      "metadata": {
+        "id": "OPPS-M-011",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "missing_competitor_data"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-012",
+      "edge_case_type": "conflicting_competitor_signals",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 1.9,
+          "mobile_responsiveness_score": 80
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.2,
+          "review_count": 10
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.4,
+          "average_competitor_review_count": 182.5,
+          "average_competitor_page_load_time_seconds": 1.85,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 50,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has solid performance/SEO but is far behind average competitor review count (10 vs 182.5).",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Fewer reviews reduces local organic map-pack presence compared to active lock competitors."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-012",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "conflicting_competitor_signals"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-013",
+      "edge_case_type": "invalid_schema_markup",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Wix",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 3.0,
+          "mobile_responsiveness_score": 70
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.3,
+          "review_count": 28
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 115,
+          "average_competitor_page_load_time_seconds": 1.6,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 70,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target's reputation lags behind competitors (4.3 rating & 28 reviews vs. 4.75 rating & 115 reviews).",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Reputational gaps hinder acquisition metrics for local searches."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-013",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "invalid_schema_markup"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-014",
+      "edge_case_type": "standard_pt_phoenix",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "WordPress",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.1,
+          "mobile_responsiveness_score": 78
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 40
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 95,
+          "average_competitor_page_load_time_seconds": 1.45,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 60,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target lags in reviews (40 vs 95) and lacks a direct client booking widget.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Missing direct online scheduling limits immediate patient conversions."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-014",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_pt_phoenix"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-015",
+      "edge_case_type": "standard_cleaning_philly",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 12.4,
+          "mobile_responsiveness_score": 25
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.0,
+          "review_count": 12
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 90,
+          "average_competitor_page_load_time_seconds": 1.7,
+          "average_competitor_schema_org_adoption": 0.5
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 92,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has severe website latency (12.4s vs. 1.7s) and reputational gaps.",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Extremely slow website speeds (12.4s) cause high mobile bounce rates."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-015",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_cleaning_philly"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-016",
+      "edge_case_type": "standard_auto_houston",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "WordPress",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.2,
+          "mobile_responsiveness_score": 80
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.8,
+          "review_count": 2
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.65,
+          "average_competitor_review_count": 210,
+          "average_competitor_page_load_time_seconds": 1.5,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 75,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has great ratings (4.8) but almost no review volume (2 vs 210).",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Extremely low review count restricts local map placement trust markers."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-016",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_auto_houston"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-017",
+      "edge_case_type": "standard_vet_orlando",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 1.1,
+          "mobile_responsiveness_score": 96
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.9,
+          "review_count": 210
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.65,
+          "average_competitor_review_count": 122.5,
+          "average_competitor_page_load_time_seconds": 1.65,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 15,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has no major gaps and outclasses competitors in ratings and review counts.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Minimal digital presence opportunities; target is a market leader."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-017",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_vet_orlando"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-018",
+      "edge_case_type": "standard_tax_nashville",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": false
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.5,
+          "mobile_responsiveness_score": 75
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.3,
+          "review_count": 34
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 82.5,
+          "average_competitor_page_load_time_seconds": 1.65,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "SEO Opportunity",
+        "opportunity_score": 60,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target lacks structured local schema data while competitors adopt it fully.",
+        "business_impact_analysis": {
+          "SEO Opportunity": "Missing schema tags reduces local search indexing capability."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-018",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_tax_nashville"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-019",
+      "edge_case_type": "standard_painters_vegas",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 3.0,
+          "mobile_responsiveness_score": 70
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 3.2,
+          "review_count": 5
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.65,
+          "average_competitor_review_count": 72.5,
+          "average_competitor_page_load_time_seconds": 1.85,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 85,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has a very low rating (3.2 vs 4.65) and minimal review count (5 vs 72.5).",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "A 3.2 star rating drives away potential customers from search results."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-019",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_painters_vegas"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-020",
+      "edge_case_type": "standard_tree_minneapolis",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 7.5,
+          "mobile_responsiveness_score": 30
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 48
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 110,
+          "average_competitor_page_load_time_seconds": 1.55,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 80,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has slow load speed (7.5s vs 1.55s) and poor mobile score (30).",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Outdated, slow website limits mobile conversions and harms organic SEO rankings."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-020",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_tree_minneapolis"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-021",
+      "edge_case_type": "standard_tutors_sanjose",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.2,
+          "mobile_responsiveness_score": 80
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.2,
+          "review_count": 20
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.6,
+          "average_competitor_review_count": 50,
+          "average_competitor_page_load_time_seconds": null,
+          "average_competitor_schema_org_adoption": 0.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 50,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to partial competitor website benchmarks (competitors lack sites). Reputation gaps remain clear.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Lags behind competitor reviews averages (20 vs 50)."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "missing_competitor_data_penalty"
+        ],
+        "expected_degradation_reason": "Confidence degraded by one level to Medium due to empty competitor performance benchmarks."
+      },
+      "metadata": {
+        "id": "OPPS-M-021",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_tutors_sanjose"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-022",
+      "edge_case_type": "standard_gym_charlotte",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.3,
+          "mobile_responsiveness_score": 78
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.5,
+          "review_count": 60
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 115,
+          "average_competitor_page_load_time_seconds": 1.45,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 55,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target has missing Google Analytics and rating/review count deficits.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Fewer local review signals reduces map pack positioning."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-022",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_gym_charlotte"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-023",
+      "edge_case_type": "incomplete_audit_logs",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": null,
+          "mobile_responsiveness_score": 50
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.1,
+          "review_count": 16
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.65,
+          "average_competitor_review_count": 97.5,
+          "average_competitor_page_load_time_seconds": 1.6,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 60,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to partial target performance findings (page load time missing). Scoring focuses on reputation gaps.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Low reviews count (16 vs 97.5 average) limits local search positioning."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "incomplete_seo_audit_penalty"
+        ],
+        "expected_degradation_reason": "Confidence degraded by one level to Medium due to missing page load time metrics."
+      },
+      "metadata": {
+        "id": "OPPS-M-023",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "incomplete_audit_logs"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-024",
+      "edge_case_type": "standard_electricians_slc",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.0,
+          "mobile_responsiveness_score": 80
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 10
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.85,
+          "average_competitor_review_count": 1350,
+          "average_competitor_page_load_time_seconds": 1.3,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 85,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence. Target rating (4.4) and reviews (10) are extremely far behind the market averages (4.85 & 1350 reviews).",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Severe local review gaps prevent ranking against major competitors in Salt Lake City."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied. All inputs fully populated."
+      },
+      "metadata": {
+        "id": "OPPS-M-024",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "standard_electricians_slc"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-M-025",
+      "edge_case_type": "failed_audit",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "redirect_loop"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 3.9,
+          "review_count": 18
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 102.5,
+          "average_competitor_page_load_time_seconds": 1.6,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 55,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Crawling failed due to redirect loop. Website metrics cannot be analyzed, limiting scoring to reputation.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Low local reputation score (3.9) and review count deficit (18 vs 102.5) hinders customer acquisition."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "failed_website_audit_penalty"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Low due to target website audit failure (redirect_loop)."
+      },
+      "metadata": {
+        "id": "OPPS-M-025",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "failed_audit"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-S-026",
+      "edge_case_type": "standard_landscaping_tampa",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "WordPress",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 2.1,
+          "mobile_responsiveness_score": 78
+        },
+        "conversion_findings": {
+          "booking_widget_present": false,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.3,
+          "review_count": 15
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 95,
+          "average_competitor_page_load_time_seconds": 1.35,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 60,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence based on complete crawler data showing reputation gap.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Target has fewer reviews than competitors, reducing local search prominence."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied."
+      },
+      "metadata": {
+        "id": "OPPS-S-026",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "landscaper",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "standard_landscaping_tampa"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-S-027",
+      "edge_case_type": "standard_tax_phoenix",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": true
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 9.2,
+          "mobile_responsiveness_score": 35
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.0,
+          "review_count": 8
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.65,
+          "average_competitor_review_count": 75,
+          "average_competitor_page_load_time_seconds": 1.6,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Performance Opportunity",
+        "opportunity_score": 88,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence based on slow website speed.",
+        "business_impact_analysis": {
+          "Performance Opportunity": "Extremely slow website speeds (9.2s) cause high mobile bounce rates."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied."
+      },
+      "metadata": {
+        "id": "OPPS-S-027",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "tax_prep",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "standard_tax_phoenix"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-S-028",
+      "edge_case_type": "no_website_business",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "domain_does_not_exist"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.1,
+          "review_count": 18
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.7,
+          "average_competitor_review_count": 120,
+          "average_competitor_page_load_time_seconds": 1.7,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "No Website Opportunity",
+        "opportunity_score": 90,
+        "confidence_level": "Medium",
+        "confidence_reasoning": "Confidence is Medium due to lack of direct website performance crawling logs.",
+        "business_impact_analysis": {
+          "No Website Opportunity": "Lacking a digital site prevents captures of local organic Google search volume."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "no_website_audit_degradation"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Medium due to missing target website crawler results."
+      },
+      "metadata": {
+        "id": "OPPS-S-028",
+        "difficulty": "medium",
+        "category": "opportunity_scoring",
+        "business_type": "house_cleaning",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "no_website_business"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-S-029",
+      "edge_case_type": "robots_txt_blocked",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": false,
+          "reason": "robots_txt_block"
+        },
+        "seo_findings": {},
+        "performance_findings": {},
+        "conversion_findings": {},
+        "reputation_findings": {
+          "rating": 4.4,
+          "review_count": 32
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 100,
+          "average_competitor_page_load_time_seconds": 1.5,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "Reputation Opportunity",
+        "opportunity_score": 50,
+        "confidence_level": "Low",
+        "confidence_reasoning": "Crawling blocked by robots.txt constraint rules. Opportunity scoring on website metrics is blocked.",
+        "business_impact_analysis": {
+          "Reputation Opportunity": "Reputation gap relative to competitor review counts."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [
+          "robots_txt_blocked_degradation"
+        ],
+        "expected_degradation_reason": "Confidence degraded to Low. Scraper blocked by target robots.txt rules."
+      },
+      "metadata": {
+        "id": "OPPS-S-029",
+        "difficulty": "hard",
+        "category": "opportunity_scoring",
+        "business_type": "pest_control",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "robots_txt_blocked"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
+      }
+    },
+    {
+      "case_id": "OPPS-S-030",
+      "edge_case_type": "missing_schema_markup",
+      "inputs": {
+        "audit_findings": {
+          "website_crawled_successfully": true,
+          "cms": "Custom",
+          "ssl_active": true
+        },
+        "seo_findings": {
+          "meta_title_present": true,
+          "meta_description_present": true,
+          "local_schema_present": false
+        },
+        "performance_findings": {
+          "page_load_time_seconds": 3.2,
+          "mobile_responsiveness_score": 68
+        },
+        "conversion_findings": {
+          "booking_widget_present": true,
+          "lead_capture_form_present": true
+        },
+        "reputation_findings": {
+          "rating": 4.5,
+          "review_count": 55
+        },
+        "competitor_benchmarks": {
+          "average_competitor_rating": 4.75,
+          "average_competitor_review_count": 115,
+          "average_competitor_page_load_time_seconds": 1.65,
+          "average_competitor_schema_org_adoption": 1.0
+        }
+      },
+      "expected_outputs": {
+        "opportunity_category": "SEO Opportunity",
+        "opportunity_score": 50,
+        "confidence_level": "High",
+        "confidence_reasoning": "High confidence based on missing local schema markup.",
+        "business_impact_analysis": {
+          "SEO Opportunity": "Missing schema tags reduces local search indexing capability."
+        }
+      },
+      "confidence_degradation_expectations": {
+        "applied_penalties": [],
+        "expected_degradation_reason": "No penalties applied."
+      },
+      "metadata": {
+        "id": "OPPS-S-030",
+        "difficulty": "easy",
+        "category": "opportunity_scoring",
+        "business_type": "auto_repair",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "missing_schema_markup"
+        ],
+        "expected_result": "Evaluate opportunity category, score, and confidence level with correct degradation penalties."
       }
     }
   ]

@@ -1,10 +1,860 @@
 {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GrowthScout AI - Recommendation Evaluation Dataset",
+  "description": "Evaluation dataset for business report generation, actionability, and professional outreach copy.",
+  "metadata": {
+    "dataset_version": "1.1.0",
+    "schema_version": "1.0.0",
+    "generated_in": "Sprint 6.2",
+    "last_reviewed": "2026-06-26",
+    "maintainer": "Lead Evaluation Engineer"
+  },
+  "type": "object",
+  "required": [
+    "eval_cases"
+  ],
+  "properties": {
+    "eval_cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "eval_case_id",
+          "prompt",
+          "metadata"
+        ],
+        "properties": {
+          "eval_case_id": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "object",
+            "required": [
+              "role",
+              "parts"
+            ],
+            "properties": {
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user"
+                ]
+              },
+              "parts": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "text"
+                  ],
+                  "properties": {
+                    "text": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "metadata": {
+            "type": "object",
+            "required": [
+              "id",
+              "difficulty",
+              "category",
+              "business_type",
+              "source",
+              "sprint_created",
+              "tags",
+              "expected_result"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "difficulty": {
+                "type": "string",
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "business_type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "synthesized"
+                ]
+              },
+              "sprint_created": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "expected_result": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
   "eval_cases": [
     {
-      "eval_case_id": "boiler_recommendation_pitch",
+      "eval_case_id": "RECO-M-001",
       "prompt": {
         "role": "user",
-        "parts": [{"text": "Draft a consultative growth outreach report for Austin Boiler Experts (website: http://austinboilerexperts.com) with opportunities: no_booking_widget, slow_loading_mobile and lead score: 65."}]
+        "parts": [
+          {
+            "text": "Draft a consultative growth outreach report for Austin Boiler Experts (website: http://austinboilerexperts.com) with opportunities: no_booking_widget, slow_loading_mobile and lead score: 65."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-001",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-002",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a Growth Intelligence Report for Seattle Dental Care (website: http://seattledentistry.com) with opportunities: missing_schema_markup, missing_google_analytics and lead score: 25."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-002",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-003",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a cold outreach proposal for Chicago HVAC Repair (website: http://chicagohvacrepair.com) with opportunities: no_website, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-003",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "hvac",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "hvac",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-004",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth report for Miami Roofing Pro (website: http://miamiroofingpro.net) with opportunities: slow_loading_mobile, missing_schema_markup, no_booking_widget and lead score: 80."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-004",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-005",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a growth pitch for Boston Chiropractic Clinic (website: http://bostonchiroclinic.org) with opportunities: no_booking_widget, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-005",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-006",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate a Growth Intelligence Report for Denver Electric Experts (website: http://denverelectricexperts.com) with opportunities: slow_loading_mobile, no_booking_widget and lead score: 65."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-006",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-007",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a consultative proposal for Portland Green Landscapes (website: http://portlandgreenlandscapes.com) with opportunities: missing_schema_markup, missing_google_analytics, no_booking_widget and lead score: 60."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-007",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "landscaper",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "landscaper",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-008",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a cold email draft and report for Atlanta Exterminators (website: http://atlantaexterminators.com) with opportunities: no_website and lead score: 35."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-008",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-009",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth outreach report for Dallas Fast Locksmith (website: http://dallasfastlocksmith.com) with opportunities: slow_loading_mobile, missing_google_analytics and lead score: 40."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-009",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "locksmith",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "locksmith",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-010",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate a Growth Intelligence Report for San Diego Eyes (website: http://sandiegoeyes.com) with opportunities: missing_schema_markup, no_booking_widget and lead score: 50."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-010",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "optometrist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "optometrist",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-011",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a growth pitch for Phoenix Physical Therapy (website: http://phoenixphysicaltherapy.net) with opportunities: no_booking_widget, slow_loading_mobile and lead score: 65."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-011",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "physiotherapy",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "physiotherapy",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-012",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a consultative growth report for Philly Maid Service (website: http://phillymaidservice.com) with opportunities: missing_google_analytics, missing_schema_markup and lead score: 25."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-012",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "house_cleaning",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "house_cleaning",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-013",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative proposal for Houston Auto Repair (website: http://houstonautorepair.com) with opportunities: slow_loading_mobile, missing_schema_markup, no_booking_widget and lead score: 80."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-013",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "auto_repair",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "auto_repair",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-014",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate a Growth Intelligence Report for Orlando Vet Care (website: http://orlandovetcare.org) with opportunities: missing_google_analytics, no_booking_widget and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-014",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "veterinarian",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "veterinarian",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-015",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth outreach report for Nashville CPA (website: http://nashvillecpa.com) with opportunities: slow_loading_mobile, missing_schema_markup and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-015",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "tax_prep",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tax_prep",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-016",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a cold email draft and report for Vegas Painting Pros (website: http://vegaspaintingpros.com) with opportunities: no_booking_widget, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-016",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "painter",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "painter",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-017",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a consultative proposal for Minneapolis Tree Service (website: http://minneapolistreeservice.com) with opportunities: no_website, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-017",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "tree_service",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tree_service",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-018",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a growth pitch for San Jose Tutoring (website: http://sanjosetutoring.org) with opportunities: slow_loading_mobile, missing_schema_markup, no_booking_widget and lead score: 80."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-018",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "tutor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tutor",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-019",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth report for Charlotte Fit Studio (website: http://charlottefitstudio.com) with opportunities: no_booking_widget, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-019",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-020",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate a Growth Intelligence Report for Detroit Roofing Experts (website: http://detroitroofingexperts.com) with opportunities: slow_loading_mobile, no_booking_widget and lead score: 65."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-020",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-021",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a consultative growth report for SLC Electrical (website: http://slcelectrical.com) with opportunities: missing_schema_markup, missing_google_analytics, no_booking_widget and lead score: 60."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-021",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-022",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth report for St. Louis Pest Pro (website: http://stlouispestpro.com) with opportunities: no_website and lead score: 35."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-022",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-023",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a cold email draft and report for Tampa Bay Plumbing (website: http://tampabayplumbing.com) with opportunities: slow_loading_mobile, missing_google_analytics and lead score: 40."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-023",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-024",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate a Growth Intelligence Report for Austin Dentist Clinic (website: http://austindentistclinic.com) with opportunities: missing_schema_markup, no_booking_widget and lead score: 50."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-024",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-M-025",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a growth pitch for Chicago Chiropractic (website: http://chicagochiropractic.com) with opportunities: no_booking_widget, slow_loading_mobile and lead score: 65."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-M-025",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "outreach",
+          "lead_score_context"
+        ],
+        "expected_result": "Generate a consultative, professional report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-S-026",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth outreach report for Tampa Landscaping Pros (website: http://tampalandscapingpros.com) with opportunities: no_booking_widget, missing_schema_markup and lead score: 50."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-S-026",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "landscaper",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "landscaper",
+          "outreach"
+        ],
+        "expected_result": "Generate a consultative report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-S-027",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Compile a Growth Intelligence Report for Phoenix CPA Group (website: http://phoenixcpagroup.net) with opportunities: slow_loading_mobile, missing_google_analytics and lead score: 40."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-S-027",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "tax_prep",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "tax_prep",
+          "outreach"
+        ],
+        "expected_result": "Generate a consultative report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-S-028",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a cold outreach proposal for Philly Cleaning Experts (website: http://phillycleaningexperts.org) with opportunities: no_website, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-S-028",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "house_cleaning",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "house_cleaning",
+          "outreach"
+        ],
+        "expected_result": "Generate a consultative report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-S-029",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a consultative growth report for Boston Pest Defense (website: http://bostonpestdefense.com) with opportunities: slow_loading_mobile, missing_schema_markup, no_booking_widget and lead score: 80."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-S-029",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "pest_control",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "pest_control",
+          "outreach"
+        ],
+        "expected_result": "Generate a consultative report referencing target gaps with actionable next steps."
+      }
+    },
+    {
+      "eval_case_id": "RECO-S-030",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Draft a growth pitch for Denver Auto Detail (website: http://denverautodetail.com) with opportunities: no_booking_widget, missing_google_analytics and lead score: 45."
+          }
+        ]
+      },
+      "metadata": {
+        "id": "RECO-S-030",
+        "difficulty": "medium",
+        "category": "outreach_generation",
+        "business_type": "auto_repair",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "auto_repair",
+          "outreach"
+        ],
+        "expected_result": "Generate a consultative report referencing target gaps with actionable next steps."
       }
     }
   ]

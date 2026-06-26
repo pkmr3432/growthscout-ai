@@ -3,19 +3,16 @@
   "title": "GrowthScout AI - Competitor Dataset Specification",
   "description": "Evaluation dataset for competitor-analysis, business-impact-analysis, and opportunity-scoring skills.",
   "metadata": {
-    "version": "1.0.0",
-    "field_definitions": {
-      "case_id": "Unique identifier for the evaluation test case.",
-      "edge_case_type": "Label identifying standard behavior or specific edge cases (e.g., no_website, missing_competitor_data, scraper_timeout).",
-      "target_business": "Profile, performance, and SEO metadata of the business being audited.",
-      "competitor_candidates": "Array of local competitors found in Discovery, serving as the benchmark cohort.",
-      "expected_benchmark_calculations": "Market averages computed mathematically from the competitor cohort.",
-      "expected_competitive_gap_findings": "Expected gaps flagged when target metrics are benchmarked against the competitor averages.",
-      "evaluation_expectations": "Quality assertions that the reasoning agents must satisfy (e.g. expected opportunity score range and confidence score)."
-    }
+    "dataset_version": "1.1.0",
+    "schema_version": "1.0.0",
+    "generated_in": "Sprint 6.2",
+    "last_reviewed": "2026-06-26",
+    "maintainer": "Lead Evaluation Engineer"
   },
   "type": "object",
-  "required": ["test_cases"],
+  "required": [
+    "test_cases"
+  ],
   "properties": {
     "test_cases": {
       "type": "array",
@@ -28,99 +25,103 @@
           "competitor_candidates",
           "expected_benchmark_calculations",
           "expected_competitive_gap_findings",
-          "evaluation_expectations"
+          "evaluation_expectations",
+          "metadata"
         ],
         "properties": {
-          "case_id": { "type": "string" },
-          "edge_case_type": { "type": "string" },
+          "case_id": {
+            "type": "string"
+          },
+          "edge_case_type": {
+            "type": "string"
+          },
           "target_business": {
             "type": "object",
-            "required": ["name", "rating", "review_count", "website_url"],
+            "required": [
+              "name",
+              "rating",
+              "review_count",
+              "website_url"
+            ],
             "properties": {
-              "name": { "type": "string" },
-              "rating": { "type": "number" },
-              "review_count": { "type": "integer" },
-              "website_url": { "type": ["string", "null"] },
-              "performance_metrics": {
-                "type": "object",
-                "properties": {
-                  "page_load_time_seconds": { "type": "number" },
-                  "mobile_score": { "type": "integer" }
-                }
+              "name": {
+                "type": "string"
               },
-              "seo_metrics": {
-                "type": "object",
-                "properties": {
-                  "meta_title_present": { "type": "boolean" },
-                  "h1_count": { "type": "integer" },
-                  "local_schema_present": { "type": "boolean" }
-                }
+              "rating": {
+                "type": "number"
+              },
+              "review_count": {
+                "type": "integer"
+              },
+              "website_url": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           },
           "competitor_candidates": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["name", "rating", "review_count", "website_url"],
-              "properties": {
-                "name": { "type": "string" },
-                "rating": { "type": ["number", "null"] },
-                "review_count": { "type": ["integer", "null"] },
-                "website_url": { "type": ["string", "null"] },
-                "performance_metrics": {
-                  "type": "object",
-                  "properties": {
-                    "page_load_time_seconds": { "type": "number" },
-                    "mobile_score": { "type": "integer" }
-                  }
-                },
-                "seo_metrics": {
-                  "type": "object",
-                  "properties": {
-                    "meta_title_present": { "type": "boolean" },
-                    "h1_count": { "type": "integer" },
-                    "local_schema_present": { "type": "boolean" }
-                  }
-                }
-              }
-            }
+            "type": "array"
           },
           "expected_benchmark_calculations": {
-            "type": "object",
-            "required": ["average_market_rating", "average_market_review_count"],
-            "properties": {
-              "average_market_rating": { "type": "number" },
-              "average_market_review_count": { "type": "number" },
-              "average_market_page_load_time_seconds": { "type": ["number", "null"] }
-            }
+            "type": "object"
           },
           "expected_competitive_gap_findings": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "required": ["gap_category", "target_value", "benchmark_value", "severity"],
-              "properties": {
-                "gap_category": { "type": "string" },
-                "target_value": { "type": ["string", "number", "boolean", "null"] },
-                "benchmark_value": { "type": ["string", "number", "boolean", "null"] },
-                "severity": { "type": "string" }
-              }
-            }
+            "type": "array"
           },
           "evaluation_expectations": {
+            "type": "object"
+          },
+          "metadata": {
             "type": "object",
-            "required": ["expected_opportunity_score_range", "expected_confidence_score"],
+            "required": [
+              "id",
+              "difficulty",
+              "category",
+              "business_type",
+              "source",
+              "sprint_created",
+              "tags",
+              "expected_result"
+            ],
             "properties": {
-              "expected_opportunity_score_range": {
-                "type": "object",
-                "required": ["min", "max"],
-                "properties": {
-                  "min": { "type": "integer" },
-                  "max": { "type": "integer" }
+              "id": {
+                "type": "string"
+              },
+              "difficulty": {
+                "type": "string",
+                "enum": [
+                  "easy",
+                  "medium",
+                  "hard"
+                ]
+              },
+              "category": {
+                "type": "string"
+              },
+              "business_type": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string",
+                "enum": [
+                  "manual",
+                  "synthesized"
+                ]
+              },
+              "sprint_created": {
+                "type": "string"
+              },
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               },
-              "expected_confidence_score": { "type": "string" }
+              "expected_result": {
+                "type": "string"
+              }
             }
           }
         }
@@ -129,7 +130,7 @@
   },
   "test_cases": [
     {
-      "case_id": "competitor_case_001_standard",
+      "case_id": "COMP-M-001",
       "edge_case_type": "standard_chiropractor_miami",
       "target_business": {
         "name": "Miami Chiro Group",
@@ -224,10 +225,23 @@
           "max": 90
         },
         "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-001",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "standard_chiropractor_miami"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
       }
     },
     {
-      "case_id": "competitor_case_002_no_website",
+      "case_id": "COMP-M-002",
       "edge_case_type": "no_website_business",
       "target_business": {
         "name": "Local Spine Care",
@@ -292,10 +306,23 @@
           "max": 95
         },
         "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-M-002",
+        "difficulty": "medium",
+        "category": "competitor_benchmarking",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "no_website_business"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
       }
     },
     {
-      "case_id": "competitor_case_003_scraper_timeout",
+      "case_id": "COMP-M-003",
       "edge_case_type": "scraper_timeout",
       "target_business": {
         "name": "Brickell Chiropractors LLC",
@@ -356,6 +383,2225 @@
           "max": 60
         },
         "expected_confidence_score": "Low"
+      },
+      "metadata": {
+        "id": "COMP-M-003",
+        "difficulty": "hard",
+        "category": "competitor_benchmarking",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "scraper_timeout"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-004",
+      "edge_case_type": "standard_plumber_austin",
+      "target_business": {
+        "name": "Austin Plumbing Services",
+        "rating": 3.5,
+        "review_count": 15,
+        "website_url": "https://austinplumbingservices.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.4,
+          "mobile_score": 75
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Austin Pro Plumbers",
+          "rating": 4.8,
+          "review_count": 130,
+          "website_url": "https://austinproplumbers.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.5,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Express Plumbing Austin",
+          "rating": 4.6,
+          "review_count": 95,
+          "website_url": "https://expressplumbingaustin.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 82
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Capital City Plumbers",
+          "rating": 4.7,
+          "review_count": 110,
+          "website_url": "https://capitalcityplumbers.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.7,
+        "average_market_review_count": 111.67,
+        "average_market_page_load_time_seconds": 1.5
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 3.5,
+          "benchmark_value": 4.7,
+          "severity": "High"
+        },
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 75,
+          "max": 85
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-004",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "standard_plumber_austin"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-005",
+      "edge_case_type": "standard_dentist_seattle",
+      "target_business": {
+        "name": "Seattle Dental Care",
+        "rating": 4.2,
+        "review_count": 45,
+        "website_url": "https://seattledentalcare.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 8.5,
+          "mobile_score": 40
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 2,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Emerald City Dental",
+          "rating": 4.9,
+          "review_count": 180,
+          "website_url": "https://emeraldcitydental.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.1,
+            "mobile_score": 95
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Seattle Family Dentistry",
+          "rating": 4.7,
+          "review_count": 120,
+          "website_url": "https://seattlefamilydentistry.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.6,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.8,
+        "average_market_review_count": 150.0,
+        "average_market_page_load_time_seconds": 1.35
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 8.5,
+          "benchmark_value": 1.35,
+          "severity": "High"
+        },
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 80,
+          "max": 90
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-005",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "dentist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "dentist",
+          "standard_dentist_seattle"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-006",
+      "edge_case_type": "no_website_business",
+      "target_business": {
+        "name": "Chicago Comfort HVAC",
+        "rating": 4.1,
+        "review_count": 18,
+        "website_url": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Windy City HVAC",
+          "rating": 4.8,
+          "review_count": 150,
+          "website_url": "https://windycityhvac.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Chicago Heating & Cooling",
+          "rating": 4.6,
+          "review_count": 90,
+          "website_url": "https://chicagoheatingcooling.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.0,
+            "mobile_score": 80
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.7,
+        "average_market_review_count": 120.0,
+        "average_market_page_load_time_seconds": 1.7
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "No Website Opportunity",
+          "target_value": null,
+          "benchmark_value": "Competitors have websites",
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 85,
+          "max": 95
+        },
+        "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-M-006",
+        "difficulty": "medium",
+        "category": "competitor_benchmarking",
+        "business_type": "hvac",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "hvac",
+          "no_website_business"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-007",
+      "edge_case_type": "robots_txt_blocked",
+      "target_business": {
+        "name": "Boston Chiro Plus",
+        "rating": 4.4,
+        "review_count": 32,
+        "website_url": "https://bostonchiroplus.com",
+        "performance_metrics": null,
+        "seo_metrics": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Boston Chiropractic Center",
+          "rating": 4.8,
+          "review_count": 115,
+          "website_url": "https://bostonchirocenter.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 89
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Back Bay Chiropractic",
+          "rating": 4.7,
+          "review_count": 85,
+          "website_url": "https://backbaychiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.7,
+            "mobile_score": 84
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 100.0,
+        "average_market_page_load_time_seconds": 1.5
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.4,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 60
+        },
+        "expected_confidence_score": "Low"
+      },
+      "metadata": {
+        "id": "COMP-M-007",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "chiropractor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "chiropractor",
+          "robots_txt_blocked"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-008",
+      "edge_case_type": "scraper_timeout",
+      "target_business": {
+        "name": "Denver Electricians Net",
+        "rating": 4.3,
+        "review_count": 22,
+        "website_url": "https://denverelectricians.net",
+        "performance_metrics": null,
+        "seo_metrics": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Mile High Electric",
+          "rating": 4.9,
+          "review_count": 160,
+          "website_url": "https://milehighelectric.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.1,
+            "mobile_score": 93
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Denver Power & Light",
+          "rating": 4.6,
+          "review_count": 70,
+          "website_url": "https://denverpowerlight.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.1,
+            "mobile_score": 81
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": false
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 115.0,
+        "average_market_page_load_time_seconds": 1.6
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.3,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 60
+        },
+        "expected_confidence_score": "Low"
+      },
+      "metadata": {
+        "id": "COMP-M-008",
+        "difficulty": "hard",
+        "category": "competitor_benchmarking",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "scraper_timeout"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-009",
+      "edge_case_type": "missing_metadata",
+      "target_business": {
+        "name": "Portland Lawn Care",
+        "rating": 4.5,
+        "review_count": 55,
+        "website_url": "https://portlandlawncare.org",
+        "performance_metrics": {
+          "page_load_time_seconds": 3.2,
+          "mobile_score": 68
+        },
+        "seo_metrics": {
+          "meta_title_present": false,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Portland Garden Design",
+          "rating": 4.8,
+          "review_count": 140,
+          "website_url": "https://portlandgardendesign.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Rose City Landscaping",
+          "rating": 4.7,
+          "review_count": 90,
+          "website_url": "https://rosecitylandscaping.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.9,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 115.0,
+        "average_market_page_load_time_seconds": 1.65
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-009",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "landscaper",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "landscaper",
+          "missing_metadata"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-010",
+      "edge_case_type": "missing_competitor_data",
+      "target_business": {
+        "name": "Atlanta Pest Defense",
+        "rating": 3.8,
+        "review_count": 14,
+        "website_url": "https://atlantapestdefense.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.8,
+          "mobile_score": 72
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 0.0,
+        "average_market_review_count": 0.0,
+        "average_market_page_load_time_seconds": null
+      },
+      "expected_competitive_gap_findings": [],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 30,
+          "max": 50
+        },
+        "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-M-010",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "missing_competitor_data"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-011",
+      "edge_case_type": "conflicting_competitor_signals",
+      "target_business": {
+        "name": "Dallas Key Experts",
+        "rating": 4.2,
+        "review_count": 10,
+        "website_url": "https://dallaslocksmiths.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 1.9,
+          "mobile_score": 80
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Dallas Key Master",
+          "rating": 4.9,
+          "review_count": 15,
+          "website_url": "https://dallaskeymaster.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 91
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Quick Lock Dallas",
+          "rating": 3.9,
+          "review_count": 350,
+          "website_url": "https://quicklockdallas.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.5,
+            "mobile_score": 70
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.4,
+        "average_market_review_count": 182.5,
+        "average_market_page_load_time_seconds": 1.85
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.2,
+          "benchmark_value": 4.4,
+          "severity": "Low"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 65
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-011",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "conflicting_competitor_signals"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-012",
+      "edge_case_type": "invalid_schema_markup",
+      "target_business": {
+        "name": "San Diego Eye Care",
+        "rating": 4.3,
+        "review_count": 28,
+        "website_url": "https://sandiegoeyecare.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 3.0,
+          "mobile_score": 70
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 0,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "San Diego Vision Center",
+          "rating": 4.8,
+          "review_count": 135,
+          "website_url": "https://sdvisioncenter.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 92
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Pacific Coast Optometry",
+          "rating": 4.7,
+          "review_count": 95,
+          "website_url": "https://pacificcoastoptometry.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 115.0,
+        "average_market_page_load_time_seconds": 1.6
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": 0,
+          "benchmark_value": 1,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 60,
+          "max": 80
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-012",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "optometrist",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "optometrist",
+          "invalid_schema_markup"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-013",
+      "edge_case_type": "standard_pt_phoenix",
+      "target_business": {
+        "name": "Phoenix PT Clinic",
+        "rating": 4.4,
+        "review_count": 40,
+        "website_url": "https://phoenixptclinic.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.1,
+          "mobile_score": 78
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Phoenix Sports Therapy",
+          "rating": 4.8,
+          "review_count": 110,
+          "website_url": "https://phoenixsportstherapy.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Valley Physical Therapy",
+          "rating": 4.7,
+          "review_count": 80,
+          "website_url": "https://valleypt.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.6,
+            "mobile_score": 86
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 95.0,
+        "average_market_page_load_time_seconds": 1.45
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.4,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-013",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "standard_pt_phoenix"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-014",
+      "edge_case_type": "standard_cleaning_philly",
+      "target_business": {
+        "name": "Philly Cleaning Spot",
+        "rating": 4.0,
+        "review_count": 12,
+        "website_url": "https://phillycleaningspot.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 12.4,
+          "mobile_score": 25
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 3,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Philly Clean Maid",
+          "rating": 4.7,
+          "review_count": 105,
+          "website_url": "https://phillycleanmaid.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.5,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Center City Cleaning",
+          "rating": 4.8,
+          "review_count": 75,
+          "website_url": "https://centercitycleaning.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.9,
+            "mobile_score": 82
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": false
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 90.0,
+        "average_market_page_load_time_seconds": 1.7
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 12.4,
+          "benchmark_value": 1.7,
+          "severity": "High"
+        },
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.0,
+          "benchmark_value": 4.75,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 85,
+          "max": 95
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-014",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "house_cleaning",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "house_cleaning",
+          "standard_cleaning_philly"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-015",
+      "edge_case_type": "standard_auto_houston",
+      "target_business": {
+        "name": "Houston Mechanics Net",
+        "rating": 4.8,
+        "review_count": 2,
+        "website_url": "https://houstonmechanics.net",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.2,
+          "mobile_score": 80
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Houston Auto Care",
+          "rating": 4.7,
+          "review_count": 240,
+          "website_url": "https://houstonautocare.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 91
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Precision Auto Houston",
+          "rating": 4.6,
+          "review_count": 180,
+          "website_url": "https://precisionautohouston.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.7,
+            "mobile_score": 86
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.65,
+        "average_market_review_count": 210.0,
+        "average_market_page_load_time_seconds": 1.5
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 2,
+          "benchmark_value": 210.0,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 65,
+          "max": 80
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-015",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "auto_repair",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "auto_repair",
+          "standard_auto_houston"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-016",
+      "edge_case_type": "standard_vet_orlando",
+      "target_business": {
+        "name": "Orlando Vet Pro",
+        "rating": 4.9,
+        "review_count": 210,
+        "website_url": "https://orlandovetpro.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 1.1,
+          "mobile_score": 96
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Orlando Animal Hospital",
+          "rating": 4.7,
+          "review_count": 150,
+          "website_url": "https://orlandoanimalhospital.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.5,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Happy Paws Orlando",
+          "rating": 4.6,
+          "review_count": 95,
+          "website_url": "https://happypawsorlando.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 84
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.65,
+        "average_market_review_count": 122.5,
+        "average_market_page_load_time_seconds": 1.65
+      },
+      "expected_competitive_gap_findings": [],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 10,
+          "max": 25
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-016",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "veterinarian",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "veterinarian",
+          "standard_vet_orlando"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-017",
+      "edge_case_type": "standard_tax_nashville",
+      "target_business": {
+        "name": "Nashville Tax Experts",
+        "rating": 4.3,
+        "review_count": 34,
+        "website_url": "https://nashvilletaxexperts.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.5,
+          "mobile_score": 75
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Music City CPAs",
+          "rating": 4.8,
+          "review_count": 95,
+          "website_url": "https://musiccitycpas.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Nashville Tax Prep",
+          "rating": 4.7,
+          "review_count": 70,
+          "website_url": "https://nashvilletaxprep.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.9,
+            "mobile_score": 83
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 82.5,
+        "average_market_page_load_time_seconds": 1.65
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-017",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "tax_prep",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tax_prep",
+          "standard_tax_nashville"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-018",
+      "edge_case_type": "standard_painters_vegas",
+      "target_business": {
+        "name": "Vegas Painting Pros",
+        "rating": 3.2,
+        "review_count": 5,
+        "website_url": "https://vegaspaintingpros.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 3.0,
+          "mobile_score": 70
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Vegas Paint Masters",
+          "rating": 4.6,
+          "review_count": 80,
+          "website_url": "https://vegaspaintmasters.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.6,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Las Vegas Painting Co",
+          "rating": 4.7,
+          "review_count": 65,
+          "website_url": "https://lasvegaspaintingco.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.1,
+            "mobile_score": 78
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.65,
+        "average_market_review_count": 72.5,
+        "average_market_page_load_time_seconds": 1.85
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 3.2,
+          "benchmark_value": 4.65,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 75,
+          "max": 90
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-018",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "painter",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "painter",
+          "standard_painters_vegas"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-019",
+      "edge_case_type": "standard_tree_minneapolis",
+      "target_business": {
+        "name": "Minneapolis Tree Service",
+        "rating": 4.4,
+        "review_count": 48,
+        "website_url": "https://minneapolistreeservice.net",
+        "performance_metrics": {
+          "page_load_time_seconds": 7.5,
+          "mobile_score": 30
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Minneapolis Tree Care",
+          "rating": 4.8,
+          "review_count": 125,
+          "website_url": "https://minneapolistreecare.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 92
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Twin Cities Tree Experts",
+          "rating": 4.7,
+          "review_count": 95,
+          "website_url": "https://twincitiestreeexperts.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 110.0,
+        "average_market_page_load_time_seconds": 1.55
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 7.5,
+          "benchmark_value": 1.55,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 70,
+          "max": 85
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-019",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "tree_service",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tree_service",
+          "standard_tree_minneapolis"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-020",
+      "edge_case_type": "standard_tutors_sanjose",
+      "target_business": {
+        "name": "San Jose Tutoring",
+        "rating": 4.2,
+        "review_count": 20,
+        "website_url": "https://sanjosetutoring.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.2,
+          "mobile_score": 80
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Silicon Valley Tutors",
+          "rating": 4.7,
+          "review_count": 60,
+          "website_url": null
+        },
+        {
+          "name": "San Jose Learning Center",
+          "rating": 4.5,
+          "review_count": 40,
+          "website_url": null
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.6,
+        "average_market_review_count": 50.0,
+        "average_market_page_load_time_seconds": null
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.2,
+          "benchmark_value": 4.6,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 60
+        },
+        "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-M-020",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "tutor",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "tutor",
+          "standard_tutors_sanjose"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-021",
+      "edge_case_type": "standard_gym_charlotte",
+      "target_business": {
+        "name": "Charlotte Fit Studio",
+        "rating": 4.5,
+        "review_count": 60,
+        "website_url": "https://charlottefitstudio.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.3,
+          "mobile_score": 78
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Queen City Fitness",
+          "rating": 4.8,
+          "review_count": 140,
+          "website_url": "https://queencityfitness.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 91
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Charlotte Gym Center",
+          "rating": 4.7,
+          "review_count": 90,
+          "website_url": "https://charlottegymcenter.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.7,
+            "mobile_score": 84
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 115.0,
+        "average_market_page_load_time_seconds": 1.45
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.5,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 45,
+          "max": 65
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-021",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "other",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "other",
+          "standard_gym_charlotte"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-022",
+      "edge_case_type": "incomplete_audit_logs",
+      "target_business": {
+        "name": "Detroit Roofers",
+        "rating": 4.1,
+        "review_count": 16,
+        "website_url": "https://detroitroofers.com",
+        "performance_metrics": {
+          "page_load_time_seconds": null,
+          "mobile_score": 50
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Detroit Roof Repair",
+          "rating": 4.7,
+          "review_count": 110,
+          "website_url": "https://detroitroofrepair.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 87
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Motor City Roofing",
+          "rating": 4.6,
+          "review_count": 85,
+          "website_url": "https://motorcityroofing.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 82
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.65,
+        "average_market_review_count": 97.5,
+        "average_market_page_load_time_seconds": 1.6
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.1,
+          "benchmark_value": 4.65,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 75
+        },
+        "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-M-022",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "roofer",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "roofer",
+          "incomplete_audit_logs"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-023",
+      "edge_case_type": "standard_electricians_slc",
+      "target_business": {
+        "name": "SLC Electrical",
+        "rating": 4.4,
+        "review_count": 10,
+        "website_url": "https://slcelectrical.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.0,
+          "mobile_score": 80
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Utah Electric & Power",
+          "rating": 4.9,
+          "review_count": 1500,
+          "website_url": "https://utahelectric.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.1,
+            "mobile_score": 94
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "SLC Electric Experts",
+          "rating": 4.8,
+          "review_count": 1200,
+          "website_url": "https://slcelectricexperts.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.5,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.85,
+        "average_market_review_count": 1350.0,
+        "average_market_page_load_time_seconds": 1.3
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 10,
+          "benchmark_value": 1350.0,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 75,
+          "max": 90
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-023",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "electrician",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "electrician",
+          "standard_electricians_slc"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-024",
+      "edge_case_type": "missing_metadata",
+      "target_business": {
+        "name": "St. Louis Pest Pro",
+        "rating": 4.3,
+        "review_count": 30,
+        "website_url": "https://stlouispestpro.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.4,
+          "mobile_score": 75
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "meta_description_present": false,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "St. Louis Pest Control",
+          "rating": 4.8,
+          "review_count": 105,
+          "website_url": "https://stlouispestcontrol.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Gateway Pest Defense",
+          "rating": 4.7,
+          "review_count": 80,
+          "website_url": "https://gatewaypestdefense.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.7,
+            "mobile_score": 83
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 92.5,
+        "average_market_page_load_time_seconds": 1.5
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-M-024",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "pest_control",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "pest_control",
+          "missing_metadata"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-M-025",
+      "edge_case_type": "failed_audit",
+      "target_business": {
+        "name": "Tampa Bay Plumbing",
+        "rating": 3.9,
+        "review_count": 18,
+        "website_url": "https://tampabayplumbing.com",
+        "performance_metrics": null,
+        "seo_metrics": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Tampa Plumbing Pros",
+          "rating": 4.7,
+          "review_count": 115,
+          "website_url": "https://tampaplumbingpros.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Gulf Coast Plumbing",
+          "rating": 4.8,
+          "review_count": 90,
+          "website_url": "https://gulfcoastplumbing.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 84
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 102.5,
+        "average_market_page_load_time_seconds": 1.6
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 3.9,
+          "benchmark_value": 4.75,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 65
+        },
+        "expected_confidence_score": "Low"
+      },
+      "metadata": {
+        "id": "COMP-M-025",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "plumber",
+        "source": "manual",
+        "sprint_created": "sprint_6.1",
+        "tags": [
+          "plumber",
+          "failed_audit"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-S-026",
+      "edge_case_type": "standard_landscaping_tampa",
+      "target_business": {
+        "name": "Tampa Landscaping Pros",
+        "rating": 4.3,
+        "review_count": 15,
+        "website_url": "http://tampalandscapingpros.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 2.1,
+          "mobile_score": 78
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": true
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Green Tampa Yards",
+          "rating": 4.8,
+          "review_count": 80,
+          "website_url": "http://greentampayards.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.2,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Tampa Eco Landscapes",
+          "rating": 4.7,
+          "review_count": 110,
+          "website_url": "http://tampaecolandscapes.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.5,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 95.0,
+        "average_market_page_load_time_seconds": 1.35
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.3,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-S-026",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "landscaper",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "landscaper",
+          "standard_landscaping_tampa"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-S-027",
+      "edge_case_type": "standard_tax_phoenix",
+      "target_business": {
+        "name": "Phoenix CPA Group",
+        "rating": 4.0,
+        "review_count": 8,
+        "website_url": "http://phoenixcpagroup.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 9.2,
+          "mobile_score": 35
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 2,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Valley CPAs & Associates",
+          "rating": 4.7,
+          "review_count": 85,
+          "website_url": "http://valleycpas.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 88
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Phoenix Tax Masters",
+          "rating": 4.6,
+          "review_count": 65,
+          "website_url": "http://phoenixtaxmasters.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.8,
+            "mobile_score": 82
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.65,
+        "average_market_review_count": 75.0,
+        "average_market_page_load_time_seconds": 1.6
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Performance Opportunity",
+          "target_value": 9.2,
+          "benchmark_value": 1.6,
+          "severity": "High"
+        },
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.0,
+          "benchmark_value": 4.65,
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 80,
+          "max": 95
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-S-027",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "tax_prep",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "tax_prep",
+          "standard_tax_phoenix"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-S-028",
+      "edge_case_type": "no_website_business",
+      "target_business": {
+        "name": "Philly Cleaning Experts",
+        "rating": 4.1,
+        "review_count": 18,
+        "website_url": null
+      },
+      "competitor_candidates": [
+        {
+          "name": "Philly Clean Maids",
+          "rating": 4.8,
+          "review_count": 150,
+          "website_url": "http://phillycleanmaids.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Philadelphia Cleaners",
+          "rating": 4.6,
+          "review_count": 90,
+          "website_url": "http://philadelphiacleaners.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 2.0,
+            "mobile_score": 80
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.7,
+        "average_market_review_count": 120.0,
+        "average_market_page_load_time_seconds": 1.7
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "No Website Opportunity",
+          "target_value": null,
+          "benchmark_value": "Competitors have websites",
+          "severity": "High"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 85,
+          "max": 95
+        },
+        "expected_confidence_score": "Medium"
+      },
+      "metadata": {
+        "id": "COMP-S-028",
+        "difficulty": "medium",
+        "category": "competitor_benchmarking",
+        "business_type": "house_cleaning",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "house_cleaning",
+          "no_website_business"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-S-029",
+      "edge_case_type": "robots_txt_blocked",
+      "target_business": {
+        "name": "Boston Pest Defense",
+        "rating": 4.4,
+        "review_count": 32,
+        "website_url": "http://bostonpestdefense.com",
+        "performance_metrics": {
+          "page_load_time_seconds": null,
+          "mobile_score": null
+        },
+        "seo_metrics": {
+          "meta_title_present": null,
+          "h1_count": null,
+          "local_schema_present": null
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Boston Chiropractic Center",
+          "rating": 4.8,
+          "review_count": 115,
+          "website_url": "http://bostonchirocenter.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.3,
+            "mobile_score": 89
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Back Bay Chiropractic",
+          "rating": 4.7,
+          "review_count": 85,
+          "website_url": "http://backbaychiro.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.7,
+            "mobile_score": 84
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 100.0,
+        "average_market_page_load_time_seconds": 1.5
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "Reputation Opportunity",
+          "target_value": 4.4,
+          "benchmark_value": 4.75,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 40,
+          "max": 60
+        },
+        "expected_confidence_score": "Low"
+      },
+      "metadata": {
+        "id": "COMP-S-029",
+        "difficulty": "hard",
+        "category": "competitor_benchmarking",
+        "business_type": "pest_control",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "pest_control",
+          "robots_txt_blocked"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
+      }
+    },
+    {
+      "case_id": "COMP-S-030",
+      "edge_case_type": "standard_detail_denver",
+      "target_business": {
+        "name": "Denver Auto Detail",
+        "rating": 4.5,
+        "review_count": 55,
+        "website_url": "http://denverautodetail.com",
+        "performance_metrics": {
+          "page_load_time_seconds": 3.2,
+          "mobile_score": 68
+        },
+        "seo_metrics": {
+          "meta_title_present": true,
+          "h1_count": 1,
+          "local_schema_present": false
+        }
+      },
+      "competitor_candidates": [
+        {
+          "name": "Denver Garden Design",
+          "rating": 4.8,
+          "review_count": 140,
+          "website_url": "http://denvergardendesign.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.4,
+            "mobile_score": 90
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        },
+        {
+          "name": "Rose City Landscaping",
+          "rating": 4.7,
+          "review_count": 90,
+          "website_url": "http://rosecitylandscaping.com",
+          "performance_metrics": {
+            "page_load_time_seconds": 1.9,
+            "mobile_score": 85
+          },
+          "seo_metrics": {
+            "meta_title_present": true,
+            "h1_count": 1,
+            "local_schema_present": true
+          }
+        }
+      ],
+      "expected_benchmark_calculations": {
+        "average_market_rating": 4.75,
+        "average_market_review_count": 115.0,
+        "average_market_page_load_time_seconds": 1.65
+      },
+      "expected_competitive_gap_findings": [
+        {
+          "gap_category": "SEO Opportunity",
+          "target_value": false,
+          "benchmark_value": true,
+          "severity": "Medium"
+        }
+      ],
+      "evaluation_expectations": {
+        "expected_opportunity_score_range": {
+          "min": 50,
+          "max": 70
+        },
+        "expected_confidence_score": "High"
+      },
+      "metadata": {
+        "id": "COMP-S-030",
+        "difficulty": "easy",
+        "category": "competitor_benchmarking",
+        "business_type": "auto_repair",
+        "source": "synthesized",
+        "sprint_created": "sprint_6.2",
+        "tags": [
+          "auto_repair",
+          "standard_detail_denver"
+        ],
+        "expected_result": "Perform mathematical benchmarks, calculate averages, and list gap findings correctly."
       }
     }
   ]

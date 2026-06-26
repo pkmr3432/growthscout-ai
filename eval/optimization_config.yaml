@@ -1,0 +1,16 @@
+# GrowthScout AI — Prompt Optimization Configuration
+# This file is used to configure prompt optimization runs targeting custom metrics.
+
+train_dataset: "eval/datasets/recommendation_dataset.json"
+validation_dataset: "eval/datasets/recommendation_dataset.json"
+
+eval_config:
+  metrics_to_run:
+    - business_recommendation_value
+    - report_readability
+
+optimizer_config:
+  max_iterations: 3
+  learning_rate: 0.1
+  print_detailed_results: true
+  log_level: "INFO"

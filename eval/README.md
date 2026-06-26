@@ -9,6 +9,7 @@ This directory houses the evaluation datasets, custom LLM metrics, validation en
 GrowthScout AI enforces a strict **Evaluation-First Development** workflow based on the **Quality Flywheel** standard. No prompts, instructions, routing logic, or tool mappings may be merged without meeting quality release gates on the golden benchmark datasets.
 
 ```
+
   ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
   │ Local Prompt │ ──> │  agents-cli  │ ──> │  agents-cli  │
   │ Adjustments  │     │ eval generate│     │  eval grade  │
@@ -68,6 +69,17 @@ Measures the tone, structure, and clarity of compiled markdown reports.
 *   **Score Calculation:** The judge returns scores for each of the 4 criteria. The final metric is the average of these sub-scores divided by 5 (normalized on a `0.0 to 1.0` scale).
 *   **PR Quality Gate:** `>= 0.80`
 
+#### 3. Consultant Confidence Score (`consultant_confidence_score`)
+Assesses whether an experienced freelance consultant would confidently deliver the generated report to a paying client without significant manual edits.
+*   **Grading Criteria (1 to 5):**
+    1.  **1 (Unacceptable)**: Major errors in spelling/grammar, broken formatting, missing sections, or completely inaccurate/hallucinated findings. Requires a complete rewrite.
+    2.  **2 (Poor)**: Accurate raw data but poorly styled or structured, has a cold/generic tone, or has minor hallucinations. Needs extensive manual revisions.
+    3.  **3 (Average)**: Contains useful findings and correct data, but lacks professional consulting depth, minor formatting inconsistencies, or robotic phrasing. Requires moderate editing.
+    4.  **4 (Good)**: High-quality report, professional tone, clean structure, action-oriented insights. Needs only minor cosmetic changes or small wording tweaks.
+    5.  **5 (Excellent)**: Outstanding insights, perfect structure, tailored tone, and immaculate presentation. Ready to deliver immediately without any modifications.
+*   **Score Calculation:** Normalized linearly: `Score = (Rubric Rating) / 5` (on a `0.0 to 1.0` scale).
+*   **PR Quality Gate:** `>= 0.80` (representing a score of 4 or 5 stars).
+
 ### Custom Code-Execution Metrics
 
 #### 1. Lead Score Correctness (`lead_score_correctness`)
@@ -80,37 +92,69 @@ A deterministic Python check validating that the Opportunity Agent output lead s
 
 ---
 
-## 4. Local Execution & Validation
+## 4. Quality Manifest (`eval/quality_manifest.yaml`)
 
-Developers can validate configurations, schema correctness, and metric parsers locally:
+We introduce an authoritative quality configuration file at `eval/quality_manifest.yaml`. This acts as the single source of truth for:
+*   **Dataset versions** and active **baseline references** (e.g. `sprint_6.2_baseline.json`).
+*   **Cadence-based case limits** (e.g. running 5 cases per dataset in Fast CI vs 30 cases in Full Nightly).
+*   **Gating parameters** for both deterministic and probabilistic metrics.
 
-### Run Schema and Model Compliance Tests
-Ensure that all datasets conform to Pydantic definitions and JSON schemas:
-```bash
-PYTHONPATH=. python3 eval/run_regression_tests.py
-```
-
-### Automation Harness (`eval/run_local_eval.sh`)
-An executable shell script is provided to automate the evaluation process:
-```bash
-./eval/run_local_eval.sh
-```
-This script:
-1. Sets up the Python path and checks for environment configurations.
-2. Dynamically configures the evaluation history output directory via the `GROWTHSCOUT_EVAL_HISTORY_DIR` environment variable (defaulting to `artifacts/evaluation_history/` if not set).
-3. Switch directories into the `agents/` project folder and executes the `agents-cli eval run` command.
-4. Triggers `generate_trend_report.py` to compile longitudinal quality trend metrics.
-5. Triggers `generate_coverage_report.py` to update the dataset coverage report.
-
-### Prompt Optimization (`eval/optimization_config.yaml`)
-To run prompt optimization targeting custom metrics:
-```bash
-agents-cli eval optimize --config eval/optimization_config.yaml
-```
+Deterministic metrics (such as schema validation or lead score correctness) enforce hard failures (`Exit Code 1`). Probabilistic metrics evaluated via LLM judges support configurable thresholds and soft review policies (e.g. `"trigger_secondary_judge"` or `"warn_and_require_manual_bypass"`) to eliminate build blockages due to model variance.
 
 ---
 
-## 5. Dataset Governance & Versioning
+## 5. Dual-Pipeline Architecture
+
+Evaluation execution is divided into two pipelines to balance feedback speed with thoroughness:
+
+### A. Fast CI Pipeline (Pull Requests)
+*   **Trigger**: Automatically executed on pull requests targeting `main` or release branches.
+*   **Scope**: Runs pytest suite, regression contract validation (`run_regression_tests.py`), and executes evaluation on a **subset of 5 cases per golden dataset** for fast developer feedback.
+*   **Gate Behavior**: Enforces deterministic metrics (fails on violation) but logs warnings for probabilistic failures without blocking the build.
+*   **Execution Time Target**: `< 3` minutes.
+
+### B. Full Evaluation Pipeline (Nightly & Releases)
+*   **Trigger**: Nightly schedule cron job (`0 2 * * *`) or on release tag pushes (`v*`).
+*   **Scope**: Evaluates the **complete 150-case golden dataset** (30 cases per dataset), compiles trend logs (`generate_trend_report.py`), updates the coverage report, and generates the HTML dashboard.
+*   **Gate Behavior**: Enforces both deterministic and probabilistic gates. Blocks release on any failure unless bypassed.
+*   **Execution Time Target**: `< 15` minutes.
+
+---
+
+## 6. Local Execution & Validation
+
+Developers can validate configurations, schema correctness, and pipeline execution locally.
+
+### Automation Harness (`eval/run_local_eval.sh`)
+Execute the harness with the desired pipeline option:
+
+*   **Run Fast CI pipeline**:
+    ```bash
+    ./eval/run_local_eval.sh --pipeline fast
+    ```
+*   **Run Full Evaluation pipeline**:
+    ```bash
+    ./eval/run_local_eval.sh --pipeline full
+    ```
+
+The harness will:
+1.  Verify `.env` configuration and setup the python path.
+2.  Filter datasets to the configured subset (for fast pipeline) or load full datasets (for full pipeline).
+3.  Run evaluation grading using `agents-cli eval run`.
+4.  Run `compare_ci_regression.py` to compare against baseline scores and apply gate rules.
+5.  Run `generate_ci_report.py` to compile Markdown summaries, JSON records, and HTML dashboards containing the structured metadata payload.
+
+### Manual Bypass Workflow
+To bypass probabilistic gate blocks during a Full Evaluation release build:
+```bash
+export BYPASS_PROBABILISTIC_GATES=true
+./eval/run_local_eval.sh --pipeline full
+```
+This forces the comparison engine to log the violations as warnings but exit with code 0.
+
+---
+
+## 7. Dataset Governance & Versioning
 
 All datasets are versioned under git. Modifying dataset cases requires adhering to standard schemas, metadata specifications, and review workflows.
 
@@ -142,3 +186,34 @@ All generated evaluation cases undergo a five-stage pipeline before promotion in
     agents-cli eval compare baseline.json candidate.json
     ```
 2.  Pruning outdated or redundant cases by archiving them under `eval/archive/` to keep evaluation suite execution times under 5 minutes.
+
+---
+
+## 8. Evaluation Contract Reference
+
+The quality gates, datasets, and metrics are governed by the authoritative [EVALUATION_CONTRACT.md](file:///Users/ptech/Desktop/growthscout-ai/eval/EVALUATION_CONTRACT.md). All modifications to the evaluation framework or datasets must preserve backward compatibility as guaranteed in the contract.
+
+---
+
+## 9. Regression Diagnostics
+
+When quality gates fail, `regression_diagnostics.py` runs automatically to explain the failure. It cross-references git status changes with metric drops to categorize regressions into:
+*   **Prompt Regression**: Drop in scores correlated with modifying agent instruction scripts.
+*   **Dataset Regression**: Drop in scores due to modifications in the golden dataset files.
+*   **Configuration Regression**: Tweaks in manifest or configuration parameters.
+*   **Model Regression**: Drop in scores due to upstream model or API variations.
+*   **Tool Regression**: Changes made to MCP schemas or tool descriptions.
+*   **Schema Regression**: Variations in core Pydantic schemas or converters.
+*   **Infrastructure Regression**: CI/CD config or docker modifications.
+*   **Dependency Regression**: Package changes in lockfiles.
+*   **Evaluation Regression**: Score changes resulting from grader/rubric prompt edits.
+
+---
+
+## 10. Prompt Optimization Safety Workflow
+
+Automated prompt tuning must strictly remain Human-in-the-Loop:
+1.  Run `python3 eval/optimize_prompts.py --dry-run` to verify optimization config.
+2.  The optimizer outputs candidate prompts and logs side-by-side A/B score comparisons to `artifacts/evaluation_history/candidate_prompts.json`.
+3.  Active production prompt files are **never** automatically overwritten. The developer must manually review, approve, commit, and PR the modified prompt.
+

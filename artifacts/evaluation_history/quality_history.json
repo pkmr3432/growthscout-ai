@@ -1,0 +1,218 @@
+[
+  {
+    "timestamp": "2026-06-26T17:37:47.354608Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_201126.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  },
+  {
+    "timestamp": "2026-06-26T17:38:47.608330Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_230847.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  },
+  {
+    "timestamp": "2026-06-26T17:39:16.123372Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_230847.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  },
+  {
+    "timestamp": "2026-06-26T17:40:29.862362Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_230847.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  },
+  {
+    "timestamp": "2026-06-26T17:41:31.492773Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_231131.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  },
+  {
+    "timestamp": "2026-06-26T17:54:05.313110Z",
+    "commit_hash": "faf56a1",
+    "results_source": "results_20260626_232405.json",
+    "metrics": {
+      "schema_validation": 1.0,
+      "routing_correctness": 1.0,
+      "tool_usage": 1.0,
+      "state_transitions": 1.0,
+      "lead_score_correctness": 1.0,
+      "business_recommendation_value": 0.87,
+      "report_readability": 0.835,
+      "consultant_confidence_score": 0.81
+    },
+    "latency": {
+      "average": 3.5,
+      "p95": 5.2
+    },
+    "tokens": {
+      "average_per_case": 1200,
+      "total_tokens": 2400
+    },
+    "cost": {
+      "estimated_evaluation_cost": 0.03
+    },
+    "performance": {
+      "evaluation_duration_seconds": 7.0,
+      "pass_rate": 1.0,
+      "failure_categories_logged": []
+    },
+    "reproducibility": {
+      "evaluation_variance": 0.0,
+      "judge_consistency": 1.0,
+      "reproducibility_rate": 1.0
+    }
+  }
+]

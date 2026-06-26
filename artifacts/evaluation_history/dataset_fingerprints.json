@@ -1,0 +1,27 @@
+{
+  "discovery": {
+    "schema_hash": "bf0bed7cb17eb54fa4d1f0bf5687a27c63a114bff2fa402c3bec66912956c2f3",
+    "content_hash": "36798010b3c51675ca3535b642d208070e3f38d1a3d570cd3b4c60b1e922552d",
+    "metadata_hash": "7da3a10f365036f2b5c593a90c3f09277f5b533aed1c9e1f3095e3fedc7dad89"
+  },
+  "analysis": {
+    "schema_hash": "ab4d533e24640e62ed5e37e800d997da9e1804584298b9f95ce587b2f245729e",
+    "content_hash": "6b77cc79c73fe50510b97afdad05a96410fee01998e8c75259e392ed192aeae7",
+    "metadata_hash": "7da3a10f365036f2b5c593a90c3f09277f5b533aed1c9e1f3095e3fedc7dad89"
+  },
+  "recommendation": {
+    "schema_hash": "a1aa5e12eeaa7a72c7dbebe6b654c85f9a667a2fceaa9bceaa51d1e211581780",
+    "content_hash": "e750153016b1489e9333c4a758f1a6b146d3bd18b1073cf57bc9bf613646b33e",
+    "metadata_hash": "7da3a10f365036f2b5c593a90c3f09277f5b533aed1c9e1f3095e3fedc7dad89"
+  },
+  "competitor": {
+    "schema_hash": "967beab033281c2096319d46833ffd56f2786b565827a3943b88beaf89b9535d",
+    "content_hash": "8ff8ef67e7c38467e1a94f19e7ae3fe32827bde971a83bbe6b9372d1db2a2476",
+    "metadata_hash": "7da3a10f365036f2b5c593a90c3f09277f5b533aed1c9e1f3095e3fedc7dad89"
+  },
+  "opportunity_scoring": {
+    "schema_hash": "1dd7dcb1b652d52427152c5f2fc42061b52702e3e6f5e25507c534b55a4bc957",
+    "content_hash": "e6d74c5a0c83fda7bfac0a1f1233930dc84c5b8471bee763bf435e5f5ea15f9a",
+    "metadata_hash": "7da3a10f365036f2b5c593a90c3f09277f5b533aed1c9e1f3095e3fedc7dad89"
+  }
+}

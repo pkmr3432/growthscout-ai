@@ -1,0 +1,115 @@
+name: GrowthScout AI Quality Gate & Evaluation Pipeline
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+  push:
+    branches:
+      - main
+      - 'release/**'
+    tags:
+      - 'v*'
+  schedule:
+    # Run nightly at 02:00 UTC
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  fast-ci:
+    name: Fast CI Pipeline
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || pip install pytest pyyaml pydantic google-genai google-cloud-aiplatform mcp || true
+
+      - name: Run Backend Regression Tests (Pytest)
+        run: |
+          export PYTHONPATH=$PWD
+          pytest tests/
+
+      - name: Run Schema & Conformance Regression Checks
+        run: |
+          export PYTHONPATH=$PWD
+          python3 eval/run_regression_tests.py
+
+      - name: Authenticate to Google Cloud via OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - name: Run Fast Evaluation Pipeline
+        run: |
+          chmod +x eval/run_local_eval.sh
+          ./eval/run_local_eval.sh --pipeline fast
+        env:
+          GROWTHSCOUT_EVAL_HISTORY_DIR: ${{ github.workspace }}/artifacts/evaluation_history
+
+      - name: Upload Fast CI Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-ci-evaluation-reports
+          path: |
+            artifacts/evaluation_history/
+            artifacts/grade_results/
+          retention-days: 7
+
+  full-evaluation:
+    name: Full Nightly & Release Validation
+    if: github.event_name == 'schedule' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || pip install pytest pyyaml pydantic google-genai google-cloud-aiplatform mcp || true
+
+      - name: Authenticate to Google Cloud via OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WIF_PROVIDER }}
+          service_account: ${{ secrets.GCP_WIF_SERVICE_ACCOUNT }}
+
+      - name: Run Full Evaluation Suite
+        run: |
+          chmod +x eval/run_local_eval.sh
+          ./eval/run_local_eval.sh --pipeline full
+        env:
+          GROWTHSCOUT_EVAL_HISTORY_DIR: ${{ github.workspace }}/artifacts/evaluation_history
+
+      - name: Upload Full Evaluation Dashboards & Trends
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-evaluation-package
+          path: |
+            artifacts/evaluation_history/
+            artifacts/grade_results/
+          retention-days: 30

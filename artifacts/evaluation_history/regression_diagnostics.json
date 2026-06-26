@@ -1,0 +1,29 @@
+{
+  "has_regressions": true,
+  "regressions_count": 2,
+  "regressions": [
+    {
+      "case_id": "DISC-M-001",
+      "metric": "consultant_confidence_score",
+      "candidate_score": 0.75,
+      "baseline_score": 0.8,
+      "delta": -0.05
+    },
+    {
+      "case_id": "DISC-M-001",
+      "metric": "consultant_confidence_score",
+      "candidate_score": 0.75,
+      "baseline_score": 0.8,
+      "delta": -0.05
+    }
+  ],
+  "modified_files": [
+    "agents/orchestrator_agent/agent.py",
+    "eval/datasets/discovery_dataset.json"
+  ],
+  "classified_regression_categories": [
+    "Prompt Regression",
+    "Dataset Regression"
+  ],
+  "diagnostic_summary": "Detected 2 regressions correlated with modifications in: Prompt Regression, Dataset Regression."
+}

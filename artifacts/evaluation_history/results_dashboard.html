@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>GrowthScout AI — Quality Gates Dashboard</title>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: #1e293b;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            padding: 30px;
+            border: 1px solid #334155;
+        }
+        h1 {
+            color: #f8fafc;
+            margin-top: 0;
+            font-size: 28px;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+        }
+        h2 {
+            color: #38bdf8;
+            font-size: 20px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        .badge {
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .badge-pass {
+            background-color: #065f46;
+            color: #34d399;
+        }
+        .badge-fail {
+            background-color: #991b1b;
+            color: #f87171;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background-color: #0f172a;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #334155;
+        }
+        th {
+            background-color: #0f172a;
+            color: #94a3b8;
+        }
+        tr:hover {
+            background-color: #334155;
+        }
+        .pass { color: #34d399; font-weight: bold; }
+        .fail { color: #f87171; font-weight: bold; }
+        .warn { color: #fbbf24; font-weight: bold; }
+        .policy-log {
+            background-color: #0f172a;
+            border-left: 4px solid #fbbf24;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 0 4px 4px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 GrowthScout AI — Quality Gates Dashboard</h1>
+        
+        <div class="badge badge-pass">
+            Pipeline Run Status: PASSED
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h2>📊 Metadata</h2>
+                <table>
+                    <tr><th>evaluation_version</th><td><code>1.3.0</code></td></tr>
+<tr><th>dataset_version</th><td><code>1.1.0</code></td></tr>
+<tr><th>prompt_version</th><td><code>2.4.0</code></td></tr>
+<tr><th>model_version</th><td><code>gemini-1.5-pro-002</code></td></tr>
+<tr><th>provider</th><td><code>google</code></td></tr>
+<tr><th>model_revision</th><td><code>2024-09-02</code></td></tr>
+<tr><th>temperature</th><td><code>0.0</code></td></tr>
+<tr><th>commit_hash</th><td><code>faf56a1</code></td></tr>
+<tr><th>timestamp</th><td><code>2026-06-26T17:54:05.767740Z</code></td></tr>
+<tr><th>pipeline_type</th><td><code>fast_ci</code></td></tr>
+                </table>
+            </div>
+            <div class="card">
+                <h2>📈 Gate Verification Summary</h2>
+                <table>
+                    <tr><th>Deterministic Failures</th><td class="pass">NONE</td></tr>
+                    <tr><th>Probabilistic Failures</th><td class="pass">NONE</td></tr>
+                    <tr><th>Active Pipeline</th><td><code>fast_ci</code></td></tr>
+                </table>
+            </div>
+        </div>
+        
+        <h2>🔬 Detailed Quality Gate Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Type</th>
+                    <th>Candidate Score</th>
+                    <th>Baseline Score</th>
+                    <th>Threshold</th>
+                    <th>Status</th>
+                    <th>Review Policy</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td><code>schema_validation</code></td>
+            <td>deterministic</td>
+            <td><code>1.0000</code></td>
+            <td><code>1.0000</code></td>
+            <td><code>1.00</code></td>
+            <td class="pass">PASS</td>
+            <td><code>fail_build</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>routing_correctness</code></td>
+            <td>deterministic</td>
+            <td><code>1.0000</code></td>
+            <td><code>1.0000</code></td>
+            <td><code>1.00</code></td>
+            <td class="pass">PASS</td>
+            <td><code>fail_build</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>tool_usage</code></td>
+            <td>deterministic</td>
+            <td><code>1.0000</code></td>
+            <td><code>1.0000</code></td>
+            <td><code>1.00</code></td>
+            <td class="pass">PASS</td>
+            <td><code>fail_build</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>state_transitions</code></td>
+            <td>deterministic</td>
+            <td><code>1.0000</code></td>
+            <td><code>1.0000</code></td>
+            <td><code>1.00</code></td>
+            <td class="pass">PASS</td>
+            <td><code>fail_build</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>lead_score_correctness</code></td>
+            <td>deterministic</td>
+            <td><code>1.0000</code></td>
+            <td><code>1.0000</code></td>
+            <td><code>1.00</code></td>
+            <td class="pass">PASS</td>
+            <td><code>fail_build</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>business_recommendation_value</code></td>
+            <td>probabilistic</td>
+            <td><code>0.8700</code></td>
+            <td><code>0.8750</code></td>
+            <td><code>0.85</code></td>
+            <td class="pass">PASS</td>
+            <td><code>warn_and_require_manual_bypass</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>report_readability</code></td>
+            <td>probabilistic</td>
+            <td><code>0.8350</code></td>
+            <td><code>0.8417</code></td>
+            <td><code>0.80</code></td>
+            <td class="pass">PASS</td>
+            <td><code>warn_and_require_manual_bypass</code></td>
+        </tr>
+        
+
+        <tr>
+            <td><code>consultant_confidence_score</code></td>
+            <td>probabilistic</td>
+            <td><code>0.8100</code></td>
+            <td><code>0.8000</code></td>
+            <td><code>0.80</code></td>
+            <td class="pass">PASS</td>
+            <td><code>warn_and_require_manual_bypass</code></td>
+        </tr>
+        
+            </tbody>
+        </table>
+        
+        
+    </div>
+</body>
+</html>

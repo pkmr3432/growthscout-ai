@@ -1,0 +1,20 @@
+{
+  "baseline_prompt": "You are an AI assistant helping with business recommendations.\n        Write a growth report detailing opportunities.",
+  "candidate_prompt": "You are an expert freelance business consultant. Compiling a Growth Intelligence Report.\n        Provide concrete, prioritized, and highly actionable opportunities for local business niches.\n        Ensure evidence reference IDs (aud_ or opp_) are explicitly included for grounding.",
+  "ab_comparison": {
+    "business_recommendation_value": {
+      "baseline": 0.85,
+      "candidate": 0.89
+    },
+    "report_readability": {
+      "baseline": 0.81,
+      "candidate": 0.85
+    },
+    "consultant_confidence_score": {
+      "baseline": 0.79,
+      "candidate": 0.84
+    }
+  },
+  "manual_approval_required": true,
+  "status": "candidate_ready_for_review"
+}

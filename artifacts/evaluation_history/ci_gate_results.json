@@ -1,0 +1,85 @@
+{
+  "pipeline_type": "fast_ci",
+  "candidate_file": "/Users/ptech/Desktop/growthscout-ai/artifacts/grade_results/results_20260626_232405.json",
+  "baseline_file": "/Users/ptech/Desktop/growthscout-ai/eval/baselines/sprint_6.2_baseline.json",
+  "build_failed": false,
+  "has_deterministic_failures": false,
+  "has_probabilistic_failures": false,
+  "gate_results": [
+    {
+      "metric": "schema_validation",
+      "type": "deterministic",
+      "candidate_score": 1.0,
+      "baseline_score": 1.0,
+      "threshold": 1.0,
+      "status": "PASS",
+      "policy_triggered": "fail_build"
+    },
+    {
+      "metric": "routing_correctness",
+      "type": "deterministic",
+      "candidate_score": 1.0,
+      "baseline_score": 1.0,
+      "threshold": 1.0,
+      "status": "PASS",
+      "policy_triggered": "fail_build"
+    },
+    {
+      "metric": "tool_usage",
+      "type": "deterministic",
+      "candidate_score": 1.0,
+      "baseline_score": 1.0,
+      "threshold": 1.0,
+      "status": "PASS",
+      "policy_triggered": "fail_build"
+    },
+    {
+      "metric": "state_transitions",
+      "type": "deterministic",
+      "candidate_score": 1.0,
+      "baseline_score": 1.0,
+      "threshold": 1.0,
+      "status": "PASS",
+      "policy_triggered": "fail_build"
+    },
+    {
+      "metric": "lead_score_correctness",
+      "type": "deterministic",
+      "candidate_score": 1.0,
+      "baseline_score": 1.0,
+      "threshold": 1.0,
+      "status": "PASS",
+      "policy_triggered": "fail_build"
+    },
+    {
+      "metric": "business_recommendation_value",
+      "type": "probabilistic",
+      "candidate_score": 0.87,
+      "baseline_score": 0.875,
+      "threshold": 0.85,
+      "status": "PASS",
+      "policy_triggered": "warn_and_require_manual_bypass",
+      "policy_log": null
+    },
+    {
+      "metric": "report_readability",
+      "type": "probabilistic",
+      "candidate_score": 0.835,
+      "baseline_score": 0.8417,
+      "threshold": 0.8,
+      "status": "PASS",
+      "policy_triggered": "warn_and_require_manual_bypass",
+      "policy_log": null
+    },
+    {
+      "metric": "consultant_confidence_score",
+      "type": "probabilistic",
+      "candidate_score": 0.81,
+      "baseline_score": 0.8,
+      "threshold": 0.8,
+      "status": "PASS",
+      "policy_triggered": "warn_and_require_manual_bypass",
+      "policy_log": null
+    }
+  ]
+}

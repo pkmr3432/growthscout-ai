@@ -9,6 +9,7 @@ metrics_to_run:
   - lead_score_correctness # Selected from custom_metrics pool below
   - business_recommendation_value # Selected from custom_metrics pool below
   - report_readability # Selected from custom_metrics pool below
+  - consultant_confidence_score # Selected from custom_metrics pool below
 
 custom_metrics:
   - name: lead_score_correctness
@@ -99,4 +100,33 @@ custom_metrics:
       {
         "score": <float between 0.0 and 1.0>,
         "explanation": "<detailed rationale covering each of the 4 criteria>"
+      }
+
+  - name: consultant_confidence_score
+    description: "Assesses whether an experienced freelance consultant would confidently deliver the generated report to a paying client without significant manual edits."
+    prompt_template: |
+      You are an elite business consulting judge. Grade the following Growth Intelligence Report produced by our AI agent.
+      Assess the report's professional presentation, depth, tone, accuracy, and client-readiness on a scale of 1 to 5:
+
+      1 (Unacceptable): Major spelling/grammar errors, broken markdown formatting, missing critical sections, or completely inaccurate data. Requires a complete rewrite.
+      2 (Poor): Accurate raw data but poorly styled, has a generic/cold tone, or minor hallucinations. Needs extensive manual rewriting.
+      3 (Average): Useful findings but lacks professional consulting depth, minor formatting inconsistencies, or robotic phrasing. Requires moderate editing.
+      4 (Good): High-quality report, professional tone, clean structure, action-oriented insights. Needs only minor cosmetic tweaks.
+      5 (Excellent): Outstanding consulting insights, perfect structure, tailored tone, and immaculate presentation. Ready to deliver immediately without modifications.
+
+      User Prompt:
+      {prompt}
+
+      Agent's Final Response (Report):
+      {response}
+
+      Full Trace (Context):
+      {agent_data}
+
+      Return your verdict as a JSON object with "score" and "explanation" keys.
+      The score must be a float between 0.0 and 1.0, representing the rubric rating divided by 5 (e.g. rating 4 -> 0.8).
+      JSON format:
+      {
+        "score": <float between 0.0 and 1.0>,
+        "explanation": "<detailed justification referencing the rubric criteria>"
       }

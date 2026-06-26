@@ -37,14 +37,11 @@ This Constitution defines the immutable governance, architectural principles, an
 
 ---
 
-## Article III: Zero-Implementation Stage Laws
+## Article III: Backend Implementation & Release Candidate 1 Laws
 
-1.  **Prohibition of Application Logic**: During the "Zero-Implementation" project phase, no executable application source files are allowed. This includes `.py` microservice scripts, `.ts`/`.tsx` frontend pages, and docker-compose orchestration environments.
-2.  **Permitted File Types**: The repository during this phase shall consist only of:
-    *   Markdown documentation (`.md`)
-    *   YAML configuration manifests and API schemas (`.yaml`, `.yml`)
-    *   JSON schema definitions and datasets (`.json`)
-    *   Configuration templates (`.env.template`, `.template`)
+1.  **Implementation Transition**: The project has transitioned from the "Zero-Implementation" specification phase to an "Implemented and RC1 Certified" backend state. Source code and tests are now active in the repository.
+2.  **Feature Freeze**: The backend architecture and functionality are strictly frozen as of Release Candidate 1. No new features, API routes, or state machine transitions may be introduced without first updating the corresponding specifications and getting explicit maintainer approval.
+3.  **Stability Preservation**: All modifications must focus exclusively on bug fixes, performance optimization, security hardening, and documentation updates. Full backward compatibility with the existing offline test suite and benchmark suite must be preserved.
 
 ---
 

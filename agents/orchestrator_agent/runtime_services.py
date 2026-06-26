@@ -1,5 +1,6 @@
 # agents/orchestrator_agent/runtime_services.py
 from dataclasses import dataclass
+from typing import Optional
 from .runtime_config import RuntimeConfig
 from .protocols import ClockProtocol, CacheProtocol, MetricsCollectorProtocol, HealthCheckProtocol
 from .circuit_breaker import CircuitBreakerRegistry
@@ -8,6 +9,7 @@ from .interfaces.worker_invocation import WorkerRegistry
 from .hooks.audit_trail import AuditTrailWriter
 from .interfaces.checkpoint import CheckpointInterface
 from .interfaces.events import EventPublisher
+from .mcp_lifecycle import MCPLifecycleManager
 
 @dataclass(frozen=True)
 class RuntimeServices:
@@ -22,3 +24,4 @@ class RuntimeServices:
     checkpoint_interface: CheckpointInterface
     worker_registry: WorkerRegistry
     preflight_validator: HealthCheckProtocol
+    mcp_lifecycle: Optional[MCPLifecycleManager] = None

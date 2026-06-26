@@ -25,6 +25,10 @@ class RuntimeConfig(BaseModel):
 
     # HTTP & Retries
     http_timeout_seconds: float = 30.0
+    worker_timeout_seconds: float = 60.0
+    mcp_timeout_seconds: float = 30.0
+    firestore_timeout_seconds: float = 15.0
+    workflow_timeout_seconds: float = 600.0
     max_retries: int = 3
     backoff_factor: float = 2.0
 
@@ -36,6 +40,21 @@ class RuntimeConfig(BaseModel):
     circuit_breaker_failure_threshold: int = 3
     circuit_breaker_cooldown_seconds: float = 60.0
     circuit_breaker_success_threshold: int = 1
+
+    # Budget Limits
+    max_gemini_requests: int = 20
+    max_maps_requests: int = 15
+    max_pages_crawled: int = 10
+    max_elapsed_seconds: float = 600.0
+    max_cost_limit: float = 5.00
+
+    # Pricing config
+    gemini_cost_per_request: float = 0.002
+    maps_cost_per_request: float = 0.005
+    pages_cost_per_request: float = 0.001
+
+    # Checkpoint Backend
+    checkpoint_backend: str = "in_memory"
 
     # Feature flags
     feature_flags: Dict[str, bool] = Field(default_factory=dict)
@@ -65,6 +84,26 @@ class RuntimeConfig(BaseModel):
             timeout = float(os.environ.get("HTTP_TIMEOUT_SECONDS", "30.0"))
         except ValueError:
             timeout = 30.0
+
+        try:
+            worker_timeout = float(os.environ.get("WORKER_TIMEOUT_SECONDS", "60.0"))
+        except ValueError:
+            worker_timeout = 60.0
+
+        try:
+            mcp_timeout = float(os.environ.get("MCP_TIMEOUT_SECONDS", "30.0"))
+        except ValueError:
+            mcp_timeout = 30.0
+
+        try:
+            firestore_timeout = float(os.environ.get("FIRESTORE_TIMEOUT_SECONDS", "15.0"))
+        except ValueError:
+            firestore_timeout = 15.0
+
+        try:
+            workflow_timeout = float(os.environ.get("WORKFLOW_TIMEOUT_SECONDS", "600.0"))
+        except ValueError:
+            workflow_timeout = 600.0
 
         try:
             retries = int(os.environ.get("MAX_RETRIES", "3"))
@@ -101,6 +140,33 @@ class RuntimeConfig(BaseModel):
         except ValueError:
             cb_success = 1
 
+        try:
+            max_gemini = int(os.environ.get("MAX_GEMINI_REQUESTS", "20"))
+        except ValueError:
+            max_gemini = 20
+
+        try:
+            max_maps = int(os.environ.get("MAX_MAPS_REQUESTS", "15"))
+        except ValueError:
+            max_maps = 15
+
+        try:
+            max_pages = int(os.environ.get("MAX_PAGES_CRAWLED", "10"))
+        except ValueError:
+            max_pages = 10
+
+        try:
+            max_elapsed = float(os.environ.get("MAX_ELAPSED_SECONDS", "600.0"))
+        except ValueError:
+            max_elapsed = 600.0
+
+        try:
+            max_cost = float(os.environ.get("MAX_COST_LIMIT", "5.00"))
+        except ValueError:
+            max_cost = 5.0
+
+        checkpoint_bk = os.environ.get("CHECKPOINT_BACKEND", "in_memory")
+
         ff_str = os.environ.get("FEATURE_FLAGS", "")
         ff = {}
         if ff_str:
@@ -118,6 +184,10 @@ class RuntimeConfig(BaseModel):
             scraper_user_agent=user_agent,
             scraper_rate_limit_delay=rate_limit_delay,
             http_timeout_seconds=timeout,
+            worker_timeout_seconds=worker_timeout,
+            mcp_timeout_seconds=mcp_timeout,
+            firestore_timeout_seconds=firestore_timeout,
+            workflow_timeout_seconds=workflow_timeout,
             max_retries=retries,
             backoff_factor=backoff,
             cache_ttl_discovery=ttl_discovery,
@@ -125,5 +195,11 @@ class RuntimeConfig(BaseModel):
             circuit_breaker_failure_threshold=cb_threshold,
             circuit_breaker_cooldown_seconds=cb_cooldown,
             circuit_breaker_success_threshold=cb_success,
+            max_gemini_requests=max_gemini,
+            max_maps_requests=max_maps,
+            max_pages_crawled=max_pages,
+            max_elapsed_seconds=max_elapsed,
+            max_cost_limit=max_cost,
+            checkpoint_backend=checkpoint_bk,
             feature_flags=ff,
         )

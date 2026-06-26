@@ -1,18 +1,18 @@
 {
-  "timestamp": "2026-06-25T10:20:43.898911+00:00",
+  "timestamp": "2026-06-26T08:17:44.659436+00:00",
   "status": "FAILED",
   "runtime_config": {
     "config_version": "1.0.0",
     "environment": "development",
-    "loaded_at": "2026-06-25T10:20:43.899307+00:00",
-    "instance_id": "inst_2c7cfbee"
+    "loaded_at": "2026-06-26T08:17:44.660428+00:00",
+    "instance_id": "inst_256f6252"
   },
   "health_checks": [
     {
       "category": "CONFIGURATION",
       "component": "config_version",
       "status": "UP",
-      "latency_ms": 0.00523999915458262,
+      "latency_ms": 0.01107600110117346,
       "message": "Version compatibility verified.",
       "error_code": null
     },
@@ -20,7 +20,7 @@
       "category": "AUTHENTICATION",
       "component": "google_maps_api_key",
       "status": "DOWN",
-      "latency_ms": 0.0008799979696050286,
+      "latency_ms": 0.0030389928724616766,
       "message": "GOOGLE_MAPS_API_KEY is not configured.",
       "error_code": "CONFIGURATION_ERROR"
     },
@@ -28,7 +28,7 @@
       "category": "AUTHENTICATION",
       "component": "gemini_api_key",
       "status": "DOWN",
-      "latency_ms": 0.0005559995770454407,
+      "latency_ms": 0.0015889963833615184,
       "message": "GEMINI_API_KEY is not configured.",
       "error_code": "CONFIGURATION_ERROR"
     },
@@ -36,7 +36,7 @@
       "category": "DEPENDENCIES",
       "component": "local_search_server",
       "status": "UP",
-      "latency_ms": 611.4917209997657,
+      "latency_ms": 612.2671150078531,
       "message": "FastMCP server startup verified.",
       "error_code": null
     },
@@ -44,7 +44,7 @@
       "category": "DEPENDENCIES",
       "component": "web_analyzer_server",
       "status": "UP",
-      "latency_ms": 613.8774990031379,
+      "latency_ms": 610.4717170092044,
       "message": "FastMCP server startup verified.",
       "error_code": null
     }
@@ -57,7 +57,7 @@
     },
     "scraper": {
       "status": "CONNECTED",
-      "latency_ms": 504.10896499670343,
+      "latency_ms": 575.47779000015,
       "error": null
     }
   },
@@ -68,11 +68,11 @@
     "growth_intelligence_agent": "PASSED"
   },
   "execution_timings_ms": {
-    "config_load": 0.1440880005247891,
-    "health_checks": 1225.6219430055353,
-    "connectivity_checks": 504.1332999971928,
-    "worker_runs": 1413.2722330032266,
-    "total": 3143.503432998841
+    "config_load": 1.7142919969046488,
+    "health_checks": 1223.5387020045891,
+    "connectivity_checks": 575.4973800067091,
+    "worker_runs": 1280.0026629993226,
+    "total": 3081.364614001359
   },
   "warnings": [],
   "failures": [

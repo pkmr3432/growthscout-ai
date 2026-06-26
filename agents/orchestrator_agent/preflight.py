@@ -119,8 +119,9 @@ class PreflightValidator:
                 if not os.path.exists(module_path):
                     raise FileNotFoundError(f"Server module file not found: {module_path}")
 
+                import sys
                 process = await asyncio.create_subprocess_exec(
-                    "python", "-m", server_module,
+                    sys.executable, "-m", server_module,
                     stdin=asyncio.subprocess.PIPE,
                     stdout=asyncio.subprocess.PIPE,
                     stderr=asyncio.subprocess.PIPE,

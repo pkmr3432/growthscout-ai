@@ -21,13 +21,32 @@ Invariants:
 from __future__ import annotations
 
 import importlib
+import sys
+import os
+import yaml
 from datetime import datetime
 from enum import Enum
-from typing import Dict, Optional, Type
+from typing import Dict, Optional, Type, Any, List, Callable
 
 from pydantic import BaseModel, Field
 
+from google.adk.agents import LlmAgent
+from google.adk.tools.mcp_tool import McpToolset
+from google.adk.tools.mcp_tool.mcp_session_manager import StdioConnectionParams
+from mcp import StdioServerParameters
+
 from ..exceptions import WorkerNotFoundError
+from ..runtime_config import RuntimeConfig
+from agents.shared.schemas import (
+    DiscoveryLeadsSchema,
+    AuditResultsSchema,
+    OpportunityAnalysisSchema,
+    GrowthReportsSchema,
+)
+
+# Root directory can be resolved dynamically
+_AGENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_ROOT_DIR = os.path.abspath(os.path.join(_AGENT_DIR, "..", ".."))
 
 # Type alias for LlmAgent — imported here only for type hints, not at runtime
 # (avoids pulling all worker deps into orchestrator scope at import time)
@@ -37,6 +56,112 @@ _WORKER_MODULE_MAP: Dict[str, str] = {
     "opportunity_agent":        "agents.opportunity_agent.agent",
     "growth_intelligence_agent": "agents.growth_intelligence_agent.agent",
 }
+
+
+# ─── Dynamic Worker Builders ──────────────────────────────────────────────────
+
+def _load_agent_data(agent_folder: str) -> tuple[dict, str]:
+    folder_path = os.path.join(_ROOT_DIR, "agents", agent_folder)
+    config_path = os.path.join(folder_path, "definition.yaml")
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)["agent"]
+
+    policy_dir = os.path.join(_ROOT_DIR, "agents", "shared", "policies")
+    policies = []
+    for policy_file in ["safety_policy.md", "evidence_policy.md", "grounding_policy.md"]:
+        p_path = os.path.join(policy_dir, policy_file)
+        if os.path.exists(p_path):
+            with open(p_path, "r") as pf:
+                policies.append(pf.read())
+    policy_text = "\n\n".join(policies)
+    system_instruction = f"{config['system_instruction']}\n\n=== SHARED POLICIES ===\n{policy_text}"
+    return config, system_instruction
+
+
+def _build_discovery_agent(config: RuntimeConfig) -> LlmAgent:
+    cfg, system_instruction = _load_agent_data("business_discovery_agent")
+    
+    local_search_mcp = McpToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command=sys.executable,
+                args=["-m", "servers.local_search_server.server"],
+                env={
+                    "GOOGLE_MAPS_API_KEY": config.google_maps_api_key,
+                    "GEMINI_API_KEY": config.gemini_api_key,
+                    "PATH": os.environ.get("PATH", ""),
+                    "PYTHONPATH": os.environ.get("PYTHONPATH", "") or ".",
+                }
+            )
+        ),
+        tool_filter=["local_business_search"]
+    )
+    
+    return LlmAgent(
+        name=cfg["name"],
+        model=cfg["model"],
+        instruction=system_instruction,
+        description=cfg["description"],
+        tools=[local_search_mcp],
+        output_schema=DiscoveryLeadsSchema,
+        output_key="leads"
+    )
+
+
+def _build_website_analysis_agent(config: RuntimeConfig) -> LlmAgent:
+    cfg, system_instruction = _load_agent_data("website_analysis_agent")
+    
+    web_analyzer_mcp = McpToolset(
+        connection_params=StdioConnectionParams(
+            server_params=StdioServerParameters(
+                command=sys.executable,
+                args=["-m", "servers.web_analyzer_server.server"],
+                env={
+                    "GOOGLE_MAPS_API_KEY": config.google_maps_api_key,
+                    "GEMINI_API_KEY": config.gemini_api_key,
+                    "PATH": os.environ.get("PATH", ""),
+                    "PYTHONPATH": os.environ.get("PYTHONPATH", "") or ".",
+                }
+            )
+        ),
+        tool_filter=["web_page_fetcher", "tech_footprint_scanner", "seo_auditor"]
+    )
+    
+    return LlmAgent(
+        name=cfg["name"],
+        model=cfg["model"],
+        instruction=system_instruction,
+        description=cfg["description"],
+        tools=[web_analyzer_mcp],
+        output_schema=AuditResultsSchema,
+        output_key="audit_results"
+    )
+
+
+def _build_opportunity_agent(config: RuntimeConfig) -> LlmAgent:
+    cfg, system_instruction = _load_agent_data("opportunity_agent")
+    return LlmAgent(
+        name=cfg["name"],
+        model=cfg["model"],
+        instruction=system_instruction,
+        description=cfg["description"],
+        tools=[],
+        output_schema=OpportunityAnalysisSchema,
+        output_key="opportunities"
+    )
+
+
+def _build_growth_intelligence_agent(config: RuntimeConfig) -> LlmAgent:
+    cfg, system_instruction = _load_agent_data("growth_intelligence_agent")
+    return LlmAgent(
+        name=cfg["name"],
+        model=cfg["model"],
+        instruction=system_instruction,
+        description=cfg["description"],
+        tools=[],
+        output_schema=GrowthReportsSchema,
+        output_key="growth_reports"
+    )
 
 
 # ─── RetryPolicy ─────────────────────────────────────────────────────────────
@@ -155,6 +280,30 @@ class WorkerInvocationResult(BaseModel):
         ge=0,
         description="Number of retry attempts made. 0 = success on first attempt.",
     )
+    warnings: list[str] = Field(
+        default_factory=list,
+        description="Warnings generated during validation/normalization.",
+    )
+
+
+# ─── WorkerExecutionResult ───────────────────────────────────────────────────
+
+class WorkerExecutionResult(BaseModel):
+    """
+    Standardized worker execution result model.
+    """
+    model_config = {"frozen": True}
+
+    success: bool = Field(..., description="True if execution was successful.")
+    worker_name: str = Field(..., description="Name of the worker agent.")
+    output: Optional[BaseModel] = Field(None, description="Pydantic output schema model or None.")
+    metrics: Dict[str, Any] = Field(default_factory=dict, description="Metrics delta/recorded.")
+    evidence: list[Any] = Field(default_factory=list, description="Evidence generated/collected.")
+    runtime: float = Field(..., description="Execution duration in seconds.")
+    retries: int = Field(..., description="Number of retries attempted.")
+    warnings: list[str] = Field(default_factory=list, description="Warnings generated during run.")
+    correlation_id: str = Field(..., description="Correlation ID tying invocation to audit/trace.")
+
 
 
 # ─── WorkerRegistry ───────────────────────────────────────────────────────────
@@ -175,9 +324,31 @@ class WorkerRegistry:
       - WorkerNotFoundError is raised for unknown names (not KeyError).
     """
 
-    def __init__(self) -> None:
-        # Cache: worker_name → resolved LlmAgent instance
+    def __init__(self, config: Optional[RuntimeConfig] = None) -> None:
+        self.config = config
+        # Factories: worker_name -> factory Callable
+        self._factories: Dict[str, Callable[[], object]] = {}
+        # Cache: worker_name -> resolved LlmAgent instance
         self._cache: Dict[str, object] = {}
+        self._register_default_factories()
+
+    def _register_default_factories(self) -> None:
+        if self.config and self.config.google_maps_api_key and self.config.gemini_api_key:
+            self.register("business_discovery_agent", lambda: _build_discovery_agent(self.config))
+            self.register("website_analysis_agent", lambda: _build_website_analysis_agent(self.config))
+            self.register("opportunity_agent", lambda: _build_opportunity_agent(self.config))
+            self.register("growth_intelligence_agent", lambda: _build_growth_intelligence_agent(self.config))
+        else:
+            for name in _WORKER_MODULE_MAP:
+                self.register(name, lambda n=name: self._default_factory(n))
+
+    def _default_factory(self, worker_name: str) -> object:
+        module = importlib.import_module(_WORKER_MODULE_MAP[worker_name])
+        return module.agent
+
+    def register(self, worker_name: str, factory: Callable[[], object]) -> None:
+        """Register a worker factory for lazy instantiation."""
+        self._factories[worker_name] = factory
 
     def get(self, worker_name: str) -> object:
         """
@@ -192,22 +363,26 @@ class WorkerRegistry:
         Raises:
           WorkerNotFoundError: If worker_name is not in the registry.
         """
-        if worker_name not in _WORKER_MODULE_MAP:
+        if worker_name not in self._factories and worker_name not in _WORKER_MODULE_MAP:
             raise WorkerNotFoundError(
                 f"Worker '{worker_name}' is not registered. "
-                f"Known workers: {sorted(_WORKER_MODULE_MAP.keys())}"
+                f"Known workers: {sorted(list(self._factories.keys()) or _WORKER_MODULE_MAP.keys())}"
             )
 
+        if worker_name not in self._factories:
+            self.register(worker_name, lambda n=worker_name: self._default_factory(n))
+
         if worker_name not in self._cache:
-            module = importlib.import_module(_WORKER_MODULE_MAP[worker_name])
-            self._cache[worker_name] = module.agent
+            factory = self._factories[worker_name]
+            self._cache[worker_name] = factory()
 
         return self._cache[worker_name]
 
     def is_registered(self, worker_name: str) -> bool:
         """Return True if worker_name is a known registry entry."""
-        return worker_name in _WORKER_MODULE_MAP
+        return worker_name in self._factories or worker_name in _WORKER_MODULE_MAP
 
     def registered_names(self) -> list[str]:
         """Return sorted list of all registered worker names."""
-        return sorted(_WORKER_MODULE_MAP.keys())
+        keys = set(self._factories.keys()) | set(_WORKER_MODULE_MAP.keys())
+        return sorted(list(keys))

@@ -50,7 +50,7 @@ from .state_machine.memory_governor import MemoryGovernor
 from .hooks.audit_trail import AuditTrailWriter, AuditEventType, AuditTrailEntry
 from .hooks.evidence_validator import EvidenceValidationHook
 from .interfaces.worker_invocation import WorkerRegistry
-from .interfaces.checkpoint import CheckpointInterface
+from .interfaces.checkpoint import CheckpointInterface, CheckpointProviderFactory
 from .interfaces.resumability import ResumabilityController
 from .interfaces.events import (
     EventPublisher,
@@ -71,6 +71,8 @@ from .preflight import PreflightValidator
 from .circuit_breaker import CircuitBreakerRegistry
 from .cache_layer import RuntimeCacheManager
 from .runtime_services import RuntimeServices
+from .mcp_lifecycle import MCPLifecycleManager
+from .service_names import ServiceName
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 
@@ -192,6 +194,7 @@ class GrowthScoutOrchestrator:
                 checkpoint_interface=deps.checkpoint_interface,
                 worker_registry=deps.worker_registry,
                 preflight_validator=PreflightValidator(config),
+                mcp_lifecycle=MCPLifecycleManager(),
             )
 
         self.services = services
@@ -225,7 +228,8 @@ class GrowthScoutOrchestrator:
         # 1-2. Load and validate configuration
         cfg = config or RuntimeConfig.load_from_env()
 
-        # 3. Shared clients are initialized in subprocesses, but we set them up/check here
+        # 3. Initialize shared clients (mcp_lifecycle)
+        mcp_lifecycle = MCPLifecycleManager()
         
         # 4. Initialize caches
         cache_manager = RuntimeCacheManager(
@@ -251,8 +255,8 @@ class GrowthScoutOrchestrator:
             report = "\n".join(f"  - {r.component}: {r.status} ({r.message})" for r in health_results)
             raise RuntimeError(f"Startup halted due to failed preflight health checks:\n{report}")
 
-        # 8. Initialize WorkerRegistry
-        worker_registry = WorkerRegistry()
+        # 8. Initialize WorkerRegistry with runtime config
+        worker_registry = WorkerRegistry(cfg)
 
         # 9. Initialize GrowthScoutOrchestrator
         failure_policy = FailurePolicy(config=cfg, cb_registry=cb_registry)
@@ -267,9 +271,10 @@ class GrowthScoutOrchestrator:
             clock=SystemClock(),
             event_publisher=StdoutEventPublisher(),
             audit_writer=AuditTrailWriter(),
-            checkpoint_interface=CheckpointInterface(),
+            checkpoint_interface=CheckpointProviderFactory.create(cfg, cb_registry=cb_registry, metrics_collector=metrics),
             worker_registry=worker_registry,
             preflight_validator=validator,
+            mcp_lifecycle=mcp_lifecycle,
         )
 
         deps = OrchestratorDependencies(
@@ -287,6 +292,11 @@ class GrowthScoutOrchestrator:
         return orchestrator
 
     # ─── Core coordination ────────────────────────────────────────────────────
+
+    async def shutdown(self) -> None:
+        """Shut down the orchestrator and all managed subprocesses."""
+        if self.services and self.services.mcp_lifecycle:
+            await self.services.mcp_lifecycle.shutdown_all()
 
     async def start_workflow(self, context: WorkflowContext) -> WorkflowContext:
         """Start execution loop from context's current state."""
@@ -389,25 +399,111 @@ class GrowthScoutOrchestrator:
 
     def attempt_resume(self, session_id: str) -> tuple[bool, WorkflowContext | None]:
         """Attempt to resume a halted workflow from last checkpoint."""
-        resume_result = self._rc.resume(session_id)
-        if not resume_result.resumed:
-            return False, None
+        start_time = datetime.now(timezone.utc)
+        recovery_id = f"rec_{uuid.uuid4().hex[:8]}"
 
-        now = datetime.now(timezone.utc)
-        restored_context = resume_result.checkpoint.context_snapshot  # type: ignore[union-attr]
+        # Check Firestore circuit breaker if backend is firestore
+        is_firestore = self.services.config.checkpoint_backend == "firestore"
+        if is_firestore:
+            cb = self.services.cb_registry.get_breaker(ServiceName.FIRESTORE)
+            if not cb.allow_request():
+                self._mc.record_failed_resumption(session_id)
+                self._mc.record_service_request(session_id, ServiceName.FIRESTORE, "reject")
+                
+                # Emit WORKFLOW_RECOVERY_FAILED audit event
+                entry = AuditTrailEntry(
+                    entry_id=f"evt_{uuid.uuid4().hex[:8]}",
+                    session_id=session_id,
+                    workflow_id="unknown_wf",
+                    event_type=AuditEventType.WORKFLOW_RECOVERY_FAILED,
+                    workflow_state=WorkflowState.FAILED,
+                    acting_agent="orchestrator_agent",
+                    timestamp=datetime.now(timezone.utc),
+                    input_references=[],
+                    output_references=[],
+                    transition_reason="Resumption aborted: Firestore circuit breaker is OPEN",
+                    recovery_id=recovery_id,
+                )
+                self._aw.append(entry)
+                return False, None
 
-        self._ep.publish(WorkflowResumed(
-            event_id=f"ev_{uuid.uuid4().hex[:8]}",
-            session_id=session_id,
-            workflow_id=restored_context.workflow_id,
-            occurred_at=now,
-            correlation_id=restored_context.execution_metadata.correlation_id,
-            resumed_from_state=resume_result.from_state,  # type: ignore[arg-type]
-            checkpoint_version=resume_result.checkpoint.checkpoint_version,  # type: ignore[union-attr]
-        ))
-        
-        self._mc.record_checkpoint_restore(session_id)
-        return True, restored_context
+        try:
+            resume_result = self._rc.resume(session_id)
+            if not resume_result.resumed:
+                self._mc.record_failed_resumption(session_id)
+                entry = AuditTrailEntry(
+                    entry_id=f"evt_{uuid.uuid4().hex[:8]}",
+                    session_id=session_id,
+                    workflow_id="unknown_wf",
+                    event_type=AuditEventType.WORKFLOW_RECOVERY_FAILED,
+                    workflow_state=WorkflowState.FAILED,
+                    acting_agent="orchestrator_agent",
+                    timestamp=datetime.now(timezone.utc),
+                    input_references=[],
+                    output_references=[],
+                    transition_reason=f"Resumption denied: {resume_result.denial_reason}",
+                    recovery_id=recovery_id,
+                )
+                self._aw.append(entry)
+                return False, None
+
+            now = datetime.now(timezone.utc)
+            restored_context = resume_result.checkpoint.context_snapshot  # type: ignore[union-attr]
+            
+            # Attach recovery_id to the restored context
+            restored_context = restored_context.model_copy(update={"recovery_id": recovery_id})
+
+            # Record recovery metrics
+            duration_ms = (now - start_time).total_seconds() * 1000.0
+            self._mc.record_recovery_duration(session_id, duration_ms)
+            self._mc.record_resumed_workflow(session_id)
+            self._mc.record_checkpoint_restore(session_id)
+
+            # Emit WORKFLOW_RESUMED audit event
+            entry = AuditTrailEntry(
+                entry_id=f"evt_{uuid.uuid4().hex[:8]}",
+                session_id=session_id,
+                workflow_id=restored_context.workflow_id,
+                event_type=AuditEventType.WORKFLOW_RESUMED,
+                workflow_state=resume_result.from_state,  # type: ignore[arg-type]
+                acting_agent="orchestrator_agent",
+                timestamp=now,
+                input_references=[],
+                output_references=[],
+                transition_reason=f"Workflow resumed from state {resume_result.from_state.value}",
+                recovery_id=recovery_id,
+            )
+            self._aw.append(entry)
+
+            self._ep.publish(WorkflowResumed(
+                event_id=f"ev_{uuid.uuid4().hex[:8]}",
+                session_id=session_id,
+                workflow_id=restored_context.workflow_id,
+                occurred_at=now,
+                correlation_id=restored_context.execution_metadata.correlation_id,
+                resumed_from_state=resume_result.from_state,  # type: ignore[arg-type]
+                checkpoint_version=resume_result.checkpoint.checkpoint_version,  # type: ignore[union-attr]
+            ))
+
+            return True, restored_context
+
+        except Exception as exc:
+            self._mc.record_failed_resumption(session_id)
+            entry = AuditTrailEntry(
+                entry_id=f"evt_{uuid.uuid4().hex[:8]}",
+                session_id=session_id,
+                workflow_id="unknown_wf",
+                event_type=AuditEventType.WORKFLOW_RECOVERY_FAILED,
+                workflow_state=WorkflowState.FAILED,
+                acting_agent="orchestrator_agent",
+                timestamp=datetime.now(timezone.utc),
+                input_references=[],
+                output_references=[],
+                transition_reason=f"Resumption failed with exception: {str(exc)}",
+                recovery_id=recovery_id,
+            )
+            self._aw.append(entry)
+            raise exc
 
 
 # ─── LlmAgent Instantiation ───────────────────────────────────────────────────

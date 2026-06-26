@@ -9,6 +9,7 @@ from .worker_invocation import (
     WorkerRegistry,
     WorkerInvocationRequest,
     WorkerInvocationResult,
+    WorkerExecutionResult,
     RetryPolicy,
 )
 from .checkpoint import (
@@ -36,6 +37,7 @@ __all__ = [
     "WorkerRegistry",
     "WorkerInvocationRequest",
     "WorkerInvocationResult",
+    "WorkerExecutionResult",
     "RetryPolicy",
     # Checkpoint
     "CheckpointInterface",

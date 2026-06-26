@@ -2,59 +2,77 @@
 
 Welcome to the **GrowthScout AI** repository. GrowthScout AI is a production-grade AI agent platform designed to help freelancers, agencies, and consultants identify local business growth opportunities, analyze SMB digital footprints, run automated SEO and stack audits, and construct bespoke growth marketing campaigns and Growth Intelligence Reports.
 
-This repository is governed by the principles of **Spec-Driven Development (SDD)**, **Agentic Engineering**, and **Evaluation-First Development**. At this stage of the lifecycle, the repository is maintained in a **zero-implementation state**. It contains only architecture records, manifests, skill specifications, schemas, evaluation datasets, and security rule bases. No application source code exists.
-
----
-
-## 🌟 Platform Principles
-
-*   **Spec-Driven Development**: Every agent, API interface, and component must adhere to a strict specification file before development begins. The OpenAPI/Swagger blueprints, routing topologies, and data models serve as compile-time contracts.
-*   **Agentic Engineering**: Orchestrators and domain agents are isolated by role. Their logic is defined through input/output contracts, specific tool permissions, and structured system instructions.
-*   **Reusable Skills Architecture**: Capabilities (e.g., SEO auditing, competitor analysis) are developed as decoupled, reusable skill packages. Each package includes independent documentation, test targets, and example executions.
-*   **MCP Interoperability**: External integration (e.g., Google Maps searches, business website crawling) runs via the Model Context Protocol (MCP) to decouple LLM reasoning from API connectivity.
-*   **Evaluation-First Development**: Agent quality is defined by systematic evaluation datasets and LLM-as-judge rubrics. A feature is only complete when it passes validation thresholds in our evaluation harness.
-*   **Security-First Development**: Guardrails, PII redaction rules, and sandboxing policies are codified first and validated on every agent execution turn.
+As of **June 26, 2026**, the backend implementation of GrowthScout AI is **feature-complete and Release Candidate 1 (RC1) certified**. The platform leverages the Google Agent Development Kit (ADK) and Model Context Protocol (MCP) to run domain-specific agents coordinated by a centralized, stateful orchestrator.
 
 ---
 
 ## 📂 Repository Directory Layout
 
-The repository is organized into distinct domain-driven definition folders:
+The repository is organized into distinct domain-driven folders:
 
 ```
 ├── README.md                      # Onboarding and repository guidelines
 ├── PROJECT_CONSTITUTION.md        # Governance laws and code style guidelines
 ├── specs/                         # Core product, system, and agent specifications
 ├── memory/                        # Session/Profile schemas & Memory Bank configuration
-├── docs/                          # Developer guides, playbooks, and Architecture Decision Records (ADRs)
-├── agents/                        # Personas, prompts, and ADK manifests for all 5 platform agents
-├── skills/                        # Encapsulated, reusable skill definitions and test suites
-├── mcp/                           # MCP tool schemas, API payloads, and contracts
-├── workflows/                     # DAG routing maps and Human-in-the-Loop approval rules
-├── eval/                          # Grading rubrics, datasets, and evaluation harnesses
-└── security/                      # Input filters, permissions models, and PII masking rules
+├── docs/                          # Developer guides, playbooks, and ADRs
+├── agents/                        # Personas, prompts, and code for all 5 platform agents
+│   └── orchestrator_agent/        # Core orchestrator state machine, validators, & config
+├── servers/                       # MCP server implementations (local search, web analyzer)
+├── workflows/                     # DAG routing maps and YAML topologies
+├── tests/                         # Full automated test suite (agent, contract, integration, orchestrator, security)
+├── scratch/                       # Verification runner scripts, datasets, and reports
+└── releases/                      # Release snapshots and changelogs
+    └── backend-rc1/               # Finalized Backend RC1 release closure snapshot
 ```
 
 ---
 
-## 🚀 Execution & Implementation Flow
+## 🌟 Core System Features
 
-To transition this specification into an active service, the development workflow must follow these phases:
+*   **Multi-Agent Coordination**: Led by the `orchestrator_agent` executing a state machine with 11 distinct workflow states (e.g. `DISCOVERING`, `LEAD_PARTITIONING`, `AUDITING`, `OPPORTUNITY_ANALYSIS`, `REPORT_GENERATION`, `AWAITING_APPROVAL`).
+*   **Centralized Validation Pipeline**: Enforces validation sequentially (Schema -> Business Rules -> Evidence -> Normalization) before committing any state transitions.
+*   **Model Context Protocol (MCP)**: Decoupled API tools (`local_business_search`, `web_page_fetcher`, `tech_footprint_scanner`, `seo_auditor`) provided by isolated FastMCP servers.
+*   **Persistent Checkpoints**: Backend-agnostic persistence supporting memory-based (`in_memory`) and database-based (`firestore`) saving and loading.
+*   **Operational Resilience**: Built-in timeout enforcement, circuit breakers with transition callbacks for dependencies (Gemini, Google Maps, local MCPs, Firestore), exponential backoff retries (validation errors bypass retries and fail fast), and traceable workflow recovery (generating a unique `recovery_id` prefix).
 
-```mermaid
-graph TD
-    A[Specs approved] --> B[Implement MCP Servers]
-    B --> C[Configure local mock evaluations]
-    C --> D[Initialize ADK Agent prompt configs]
-    D --> E[Run CLI evaluations: agents-cli eval run]
-    E --> F{Passes rubric thresholds?}
-    F -- No --> G[Refine prompts / tool schemas]
-    G --> E
-    F -- Yes --> H[Implement Next.js UI & FastAPI Gateway]
-    H --> I[Deploy to Vertex AI Agent Runtime]
+---
+
+## 🚀 Getting Started & Verification
+
+Ensure you have Python 3.10+ installed. Install dependencies inside a virtual environment.
+
+### 1. Environment Configuration
+Create a `.env` file in the root directory (refer to [.env.example](file:///Users/ptech/Desktop/growthscout-ai/.env.example) for variables):
+```bash
+cp .env.example .env
+# Edit .env and supply your GEMINI_API_KEY and GOOGLE_MAPS_API_KEY
 ```
 
-1.  **Read the Specifications**: Understand the multi-agent orchestration architecture in [agent_architecture.md](file:///Users/ptech/Desktop/growthscout-ai/specs/agent_architecture.md) and tool dependencies in [mcp/integration_spec.md](file:///Users/ptech/Desktop/growthscout-ai/mcp/integration_spec.md).
-2.  **Inspect the Evaluation Baseline**: Review the grading configurations and datasets in [eval_config.yaml](file:///Users/ptech/Desktop/growthscout-ai/eval/eval_config.yaml) and [datasets/](file:///Users/ptech/Desktop/growthscout-ai/eval/datasets/).
-3.  **Run Local CLI Audits**: Install the Google Agent Platform CLI (`uv tool install google-agents-cli`) and verify configurations via `agents-cli lint` and `agents-cli eval dataset synthesize` (in prototype mode).
-4.  **Implement and Verify**: Build out Python FastAPI microservices and Next.js interfaces that bind directly to the schemas provided in [memory/](file:///Users/ptech/Desktop/growthscout-ai/memory/) and [specs/api_spec.yaml](file:///Users/ptech/Desktop/growthscout-ai/specs/api_spec.yaml).
+### 2. Execute Automated Regression Tests
+Run the authoritative test suite (272 collected test cases, verifying 13 core state scenarios, resilience logic, security boundaries, and schema converters):
+```bash
+PYTHONPATH=. pytest
+```
+*Expected output: `271 passed, 1 skipped` (the live integration test is skipped if keys are not supplied).*
+
+### 3. Run Live Preflight Smoke Tests
+Verify configuration, live MCP subprocess communications, scraper networks, and agent registry mappings:
+```bash
+PYTHONPATH=. python3 scratch/run_smoke_test.py
+```
+
+### 4. Execute End-to-End Benchmark Workflows
+Run simulated business cases (`hvac_austin` standard flow with checkpoint resume, `plumbing_seattle` website bypass, and `dentistry_chicago` isolated crawler failures):
+```bash
+python3 scratch/run_benchmarks.py
+```
+Outputs are written to [benchmark_results.json](file:///Users/ptech/Desktop/growthscout-ai/scratch/benchmark_results.json).
+
+---
+
+## 🛡️ Release and Security Policies
+
+*   **Article III Rule**: Backend architecture is under feature freeze. No new API endpoints or topological changes may be committed.
+*   **Explainability**: All opportunity scores and campaigns must cite tool-generated evidence rather than opaque assumptions.
+*   **Security Sandboxing**: No agent may execute unsanitized commands in a host OS terminal. PII is redacted at the gateway boundary.

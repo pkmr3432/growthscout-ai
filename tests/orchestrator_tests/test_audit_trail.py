@@ -49,7 +49,7 @@ def _make_entry(
 # ─── Tests ────────────────────────────────────────────────────────────────────
 
 class TestAuditEventTypeEnum:
-    def test_all_ten_event_types_present(self):
+    def test_all_event_types_present(self):
         expected = {
             "STATE_ENTERED", "STATE_EXITED",
             "WORKER_STARTED", "WORKER_COMPLETED", "WORKER_FAILED",
@@ -57,12 +57,24 @@ class TestAuditEventTypeEnum:
             "CHECKPOINT_CREATED",
             "WORKFLOW_RESUMED",
             "VALIDATION_FAILED",
+            "VALIDATION_STARTED",
+            "SCHEMA_VALIDATION_FAILED",
+            "BUSINESS_VALIDATION_FAILED",
+            "OUTPUT_NORMALIZED",
+            "VALIDATION_SUCCEEDED",
+            "RETRY_STARTED",
+            "RETRY_COMPLETED",
+            "CIRCUIT_OPENED",
+            "CIRCUIT_HALF_OPEN",
+            "CIRCUIT_CLOSED",
+            "TIMEOUT_OCCURRED",
+            "WORKFLOW_RECOVERY_FAILED",
         }
         actual = {e.value for e in AuditEventType}
         assert actual == expected
 
     def test_event_type_count(self):
-        assert len(list(AuditEventType)) == 10
+        assert len(list(AuditEventType)) == 22
 
 
 class TestAuditTrailEntry:
@@ -148,7 +160,7 @@ class TestAuditTrailWriterFilter:
 
 
 class TestAuditTrailAllEventTypes:
-    def test_all_10_event_types_accepted(self):
+    def test_all_event_types_accepted(self):
         """Every AuditEventType must be accepted by append() without error."""
         writer = AuditTrailWriter()
         for i, event_type in enumerate(AuditEventType):
@@ -157,4 +169,4 @@ class TestAuditTrailAllEventTypes:
                 event_type=event_type,
             )
             writer.append(entry)  # Must not raise
-        assert writer.count("sess_abcd1234") == 10
+        assert writer.count("sess_abcd1234") == 22

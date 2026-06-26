@@ -15,6 +15,7 @@ class RuntimeErrorCode(str, Enum):
     SUBPROCESS_ERROR = "SUBPROCESS_ERROR"
     VALIDATION_ERROR = "VALIDATION_ERROR"
     UNEXPECTED_ERROR = "UNEXPECTED_ERROR"
+    COST_THRESHOLD_EXCEEDED = "COST_THRESHOLD_EXCEEDED"
 
 class GrowthScoutRuntimeError(Exception):
     def __init__(

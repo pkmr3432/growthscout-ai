@@ -1,0 +1,17 @@
+{
+  "hvac_austin": {
+    "niche": "HVAC",
+    "location": "Austin, TX",
+    "max_leads": 10
+  },
+  "plumbing_seattle": {
+    "niche": "plumbing",
+    "location": "Seattle, WA",
+    "max_leads": 5
+  },
+  "dentistry_chicago": {
+    "niche": "dentist",
+    "location": "Chicago, IL",
+    "max_leads": 8
+  }
+}

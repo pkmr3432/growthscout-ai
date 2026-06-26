@@ -17,6 +17,7 @@ from .runtime_config import RuntimeConfig
 from .circuit_breaker import CircuitBreakerRegistry
 from .error_codes import RuntimeErrorCode, GrowthScoutRuntimeError
 from .service_names import ServiceName
+from .exceptions import SchemaValidationError, BusinessValidationError
 
 class FailurePolicy:
     """
@@ -60,7 +61,7 @@ class FailurePolicy:
             )
 
         service = self.get_service_for_worker(worker_name)
-        if service != ServiceName.GEMINI:
+        if service != ServiceName.GEMINI and service != ServiceName.WEBSITE_SCRAPER:
             service_breaker = self.cb_registry.get_breaker(service)
             if not service_breaker.allow_request():
                 raise GrowthScoutRuntimeError(
@@ -74,24 +75,29 @@ class FailurePolicy:
     def record_success(self, worker_name: str) -> None:
         self.cb_registry.get_breaker(ServiceName.GEMINI).record_success()
         service = self.get_service_for_worker(worker_name)
-        if service != ServiceName.GEMINI:
+        if service != ServiceName.GEMINI and service != ServiceName.WEBSITE_SCRAPER:
             self.cb_registry.get_breaker(service).record_success()
 
     def record_failure(self, worker_name: str, error: Exception) -> None:
         service = self.get_service_for_worker(worker_name)
-        if service != ServiceName.GEMINI:
+        if service != ServiceName.GEMINI and service != ServiceName.WEBSITE_SCRAPER:
             self.cb_registry.get_breaker(service).record_failure()
-        else:
+        elif service == ServiceName.GEMINI:
             self.cb_registry.get_breaker(ServiceName.GEMINI).record_failure()
 
     def should_retry(self, request: WorkerInvocationRequest, attempts_made: int, error: Exception) -> bool:
         """
         Determine if we should retry the invocation.
         """
+        if isinstance(error, (SchemaValidationError, BusinessValidationError)):
+            return False
+
         if isinstance(error, GrowthScoutRuntimeError):
             if not error.retryable:
                 return False
             if error.error_code == RuntimeErrorCode.CIRCUIT_BREAKER_OPEN:
+                return False
+            if isinstance(error.original_exception, (SchemaValidationError, BusinessValidationError)):
                 return False
 
         if request.retry_policy == RetryPolicy.NONE:

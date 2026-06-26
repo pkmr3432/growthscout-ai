@@ -61,6 +61,18 @@ class AuditEventType(str, Enum):
     CHECKPOINT_CREATED = "CHECKPOINT_CREATED"
     WORKFLOW_RESUMED = "WORKFLOW_RESUMED"
     VALIDATION_FAILED = "VALIDATION_FAILED"
+    VALIDATION_STARTED = "VALIDATION_STARTED"
+    SCHEMA_VALIDATION_FAILED = "SCHEMA_VALIDATION_FAILED"
+    BUSINESS_VALIDATION_FAILED = "BUSINESS_VALIDATION_FAILED"
+    OUTPUT_NORMALIZED = "OUTPUT_NORMALIZED"
+    VALIDATION_SUCCEEDED = "VALIDATION_SUCCEEDED"
+    RETRY_STARTED = "RETRY_STARTED"
+    RETRY_COMPLETED = "RETRY_COMPLETED"
+    CIRCUIT_OPENED = "CIRCUIT_OPENED"
+    CIRCUIT_HALF_OPEN = "CIRCUIT_HALF_OPEN"
+    CIRCUIT_CLOSED = "CIRCUIT_CLOSED"
+    TIMEOUT_OCCURRED = "TIMEOUT_OCCURRED"
+    WORKFLOW_RECOVERY_FAILED = "WORKFLOW_RECOVERY_FAILED"
 
 
 # ─── AuditTrailEntry ──────────────────────────────────────────────────────────
@@ -116,6 +128,10 @@ class AuditTrailEntry(BaseModel):
     metadata: Dict[str, str] = Field(
         default_factory=dict,
         description="Event-specific additional key-value pairs.",
+    )
+    recovery_id: Optional[str] = Field(
+        None,
+        description="Optional recovery ID associated with a resumed run.",
     )
 
     @field_validator("entry_id")

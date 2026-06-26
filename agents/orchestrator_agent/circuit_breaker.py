@@ -1,7 +1,7 @@
 # agents/orchestrator_agent/circuit_breaker.py
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, Optional
+from typing import Dict, Optional, Callable
 
 from .service_names import ServiceName
 
@@ -17,11 +17,13 @@ class CircuitBreaker:
         failure_threshold: int = 3,
         cooldown_seconds: float = 60.0,
         success_threshold: int = 1,
+        state_transition_callback: Optional[Callable[[ServiceName, CircuitState, CircuitState], None]] = None,
     ) -> None:
         self.name = name
         self.failure_threshold = failure_threshold
         self.cooldown_seconds = cooldown_seconds
         self.success_threshold = success_threshold
+        self.state_transition_callback = state_transition_callback
 
         self.state = CircuitState.CLOSED
         self.failure_count = 0
@@ -56,6 +58,7 @@ class CircuitBreaker:
                 self._transition_to(CircuitState.HALF_OPEN)
 
     def _transition_to(self, new_state: CircuitState) -> None:
+        old_state = self.state
         self.state = new_state
         self.last_state_change = datetime.now(timezone.utc)
         if new_state == CircuitState.OPEN:
@@ -68,16 +71,21 @@ class CircuitBreaker:
         elif new_state == CircuitState.HALF_OPEN:
             self.success_count = 0
 
+        if self.state_transition_callback:
+            self.state_transition_callback(self.name, old_state, new_state)
+
 class CircuitBreakerRegistry:
     def __init__(
         self,
         failure_threshold: int = 3,
         cooldown_seconds: float = 60.0,
         success_threshold: int = 1,
+        state_transition_callback: Optional[Callable[[ServiceName, CircuitState, CircuitState], None]] = None,
     ) -> None:
         self.failure_threshold = failure_threshold
         self.cooldown_seconds = cooldown_seconds
         self.success_threshold = success_threshold
+        self.state_transition_callback = state_transition_callback
         self._breakers: Dict[ServiceName, CircuitBreaker] = {}
 
     def get_breaker(self, service_name: ServiceName) -> CircuitBreaker:
@@ -87,5 +95,6 @@ class CircuitBreakerRegistry:
                 failure_threshold=self.failure_threshold,
                 cooldown_seconds=self.cooldown_seconds,
                 success_threshold=self.success_threshold,
+                state_transition_callback=self.state_transition_callback,
             )
         return self._breakers[service_name]

@@ -116,3 +116,40 @@ class ImmutabilityViolationError(OrchestratorBaseError):
     Raised when AuditTrailWriter.append() is called with an entry_id
     that already exists in the trail for a given session.
     """
+
+
+# ─── Cost Limit Errors ────────────────────────────────────────────────────────
+
+class CostThresholdExceededError(OrchestratorBaseError):
+    """
+    Raised when a runtime operation would exceed a budget threshold or cost limit.
+    """
+
+
+class CheckpointConflictError(CheckpointVersionConflictError):
+    """
+    Raised when a concurrent modification or stale write is detected during checkpoint save.
+    """
+
+
+# ─── Validation Errors ────────────────────────────────────────────────────────
+
+class SchemaValidationError(OrchestratorBaseError):
+    """
+    Raised when a worker's output fails Pydantic schema validation or JSON structure validation.
+    """
+    def __init__(self, message: str, errors: list[str] = None) -> None:
+        super().__init__(message)
+        self.errors = errors or []
+
+
+class BusinessValidationError(OrchestratorBaseError):
+    """
+    Raised when a worker's output violates business rules or logical constraints.
+    """
+    def __init__(self, message: str, errors: list[str] = None) -> None:
+        super().__init__(message)
+        self.errors = errors or []
+
+
+

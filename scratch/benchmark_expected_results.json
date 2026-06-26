@@ -1,0 +1,20 @@
+{
+  "hvac_austin": {
+    "min_discovered_leads": 5,
+    "min_websites_analyzed": 3,
+    "min_successful_reports": 1,
+    "max_execution_time_seconds": 180.0
+  },
+  "plumbing_seattle": {
+    "min_discovered_leads": 3,
+    "min_websites_analyzed": 0,
+    "min_successful_reports": 1,
+    "max_execution_time_seconds": 120.0
+  },
+  "dentistry_chicago": {
+    "min_discovered_leads": 4,
+    "min_websites_analyzed": 2,
+    "min_successful_reports": 1,
+    "max_execution_time_seconds": 150.0
+  }
+}

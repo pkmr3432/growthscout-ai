@@ -20,10 +20,11 @@ from __future__ import annotations
 
 import re
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from .states import WorkflowState
+from ..run_budget import WorkflowRunBudget
 
 # Worker output schemas — imported for embedding in WorkflowContext.
 # These are the frozen contracts from agents/shared/schemas.py.
@@ -251,6 +252,27 @@ class WorkflowContext(BaseModel):
         ...,
         description="Lifecycle timestamps: created_at, updated_at, state_entered_at.",
     )
+    budget: Optional[WorkflowRunBudget] = Field(
+        None,
+        description="The current workflow run budget, persisted across runs.",
+    )
+    worker_timeline: List[dict] = Field(
+        default_factory=list,
+        description="Chronological record of worker execution results.",
+    )
+    metrics: Optional[Dict[str, int]] = Field(
+        None,
+        description="Serialized metrics.",
+    )
+    service_metrics: Optional[Dict[str, Dict[str, int]]] = Field(
+        None,
+        description="Serialized service metrics.",
+    )
+    recovery_id: Optional[str] = Field(
+        None,
+        description="Optional recovery ID associated with a resumed run.",
+    )
+
 
     # ── Validators ────────────────────────────────────────────────────────────
 

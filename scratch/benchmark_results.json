@@ -1,0 +1,218 @@
+[
+  {
+    "case_name": "hvac_austin",
+    "status": "PASSED",
+    "discovered_leads": 10,
+    "websites_analyzed": 5,
+    "successful_reports": 1,
+    "execution_duration_seconds": 1.0601271970081143,
+    "metrics": {
+      "transition_counts": {
+        "transitions_total": 7,
+        "completions_total": 1,
+        "failures_total": 0
+      },
+      "worker_executions": {
+        "worker_executions_total": 8
+      },
+      "retries": {
+        "worker_retries_total": 0
+      },
+      "failures": {
+        "worker_failures_total": 0
+      },
+      "latencies_ms": {
+        "validation_duration_ms:business_discovery_agent": 0.6404960004147142,
+        "business_discovery_agent": 8.342,
+        "validation_duration_ms:website_analysis_agent": 0.046681001549586654,
+        "website_analysis_agent": 0.146,
+        "validation_duration_ms:opportunity_agent": 0.11564099986571819,
+        "opportunity_agent": 4.016,
+        "validation_duration_ms:growth_intelligence_agent": 0.053786003263667226,
+        "growth_intelligence_agent": 5.784
+      },
+      "workflow_duration_ms": 0.0,
+      "checkpoint_restores": 1,
+      "checkpoint_saves": 7,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "cache_evictions": 0,
+      "cache_expired": 0,
+      "validation_runs_total": 8,
+      "validation_failures_total": 0,
+      "schema_failures_total": 0,
+      "business_failures_total": 0,
+      "normalized_outputs_total": 8,
+      "warnings_total": 0,
+      "retry_attempts": 0,
+      "timeout_count": 0,
+      "circuit_breaker_open_total": 0,
+      "circuit_breaker_half_open_total": 0,
+      "circuit_breaker_recovered_total": 0,
+      "resumed_workflows": 1,
+      "failed_resumptions": 0,
+      "recovery_duration_ms": 0.064,
+      "service_metrics": {
+        "GEMINI": {
+          "successful_requests": 8,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        },
+        "GOOGLE_MAPS": {
+          "successful_requests": 1,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        },
+        "WEBSITE_SCRAPER": {
+          "successful_requests": 5,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        }
+      }
+    },
+    "audit_trail_entries_count": 39,
+    "recovery_id": null
+  },
+  {
+    "case_name": "plumbing_seattle",
+    "status": "PASSED",
+    "discovered_leads": 5,
+    "websites_analyzed": 0,
+    "successful_reports": 1,
+    "execution_duration_seconds": 1.058673853010987,
+    "metrics": {
+      "transition_counts": {
+        "transitions_total": 6,
+        "completions_total": 1,
+        "failures_total": 0
+      },
+      "worker_executions": {
+        "worker_executions_total": 3
+      },
+      "retries": {
+        "worker_retries_total": 0
+      },
+      "failures": {
+        "worker_failures_total": 0
+      },
+      "latencies_ms": {
+        "validation_duration_ms:business_discovery_agent": 0.20170799689367414,
+        "business_discovery_agent": 6.823,
+        "validation_duration_ms:opportunity_agent": 0.16156600031536072,
+        "opportunity_agent": 6.5440000000000005,
+        "validation_duration_ms:growth_intelligence_agent": 0.08693999552633613,
+        "growth_intelligence_agent": 7.231999999999999
+      },
+      "workflow_duration_ms": 0.0,
+      "checkpoint_restores": 0,
+      "checkpoint_saves": 6,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "cache_evictions": 0,
+      "cache_expired": 0,
+      "validation_runs_total": 3,
+      "validation_failures_total": 0,
+      "schema_failures_total": 0,
+      "business_failures_total": 0,
+      "normalized_outputs_total": 3,
+      "warnings_total": 0,
+      "retry_attempts": 0,
+      "timeout_count": 0,
+      "circuit_breaker_open_total": 0,
+      "circuit_breaker_half_open_total": 0,
+      "circuit_breaker_recovered_total": 0,
+      "resumed_workflows": 0,
+      "failed_resumptions": 0,
+      "recovery_duration_ms": 0.0,
+      "service_metrics": {
+        "GEMINI": {
+          "successful_requests": 3,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        },
+        "GOOGLE_MAPS": {
+          "successful_requests": 1,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        }
+      }
+    },
+    "audit_trail_entries_count": 21,
+    "recovery_id": null
+  },
+  {
+    "case_name": "dentistry_chicago",
+    "status": "PASSED",
+    "discovered_leads": 8,
+    "websites_analyzed": 4,
+    "successful_reports": 1,
+    "execution_duration_seconds": 1.1559732610039646,
+    "metrics": {
+      "transition_counts": {
+        "transitions_total": 7,
+        "completions_total": 1,
+        "failures_total": 0
+      },
+      "worker_executions": {
+        "worker_executions_total": 9
+      },
+      "retries": {
+        "worker_retries_total": 2
+      },
+      "failures": {
+        "worker_failures_total": 0
+      },
+      "latencies_ms": {
+        "validation_duration_ms:business_discovery_agent": 0.2503189898561686,
+        "business_discovery_agent": 7.406000000000001,
+        "website_analysis_agent_error": 0.159,
+        "validation_duration_ms:website_analysis_agent": 0.07087599078658968,
+        "website_analysis_agent": 0.337,
+        "validation_duration_ms:opportunity_agent": 0.1302699965890497,
+        "opportunity_agent": 6.077,
+        "validation_duration_ms:growth_intelligence_agent": 0.05485200381372124,
+        "growth_intelligence_agent": 7.615
+      },
+      "workflow_duration_ms": 0.0,
+      "checkpoint_restores": 0,
+      "checkpoint_saves": 7,
+      "cache_hits": 0,
+      "cache_misses": 0,
+      "cache_evictions": 0,
+      "cache_expired": 0,
+      "validation_runs_total": 7,
+      "validation_failures_total": 0,
+      "schema_failures_total": 0,
+      "business_failures_total": 0,
+      "normalized_outputs_total": 7,
+      "warnings_total": 0,
+      "retry_attempts": 2,
+      "timeout_count": 0,
+      "circuit_breaker_open_total": 0,
+      "circuit_breaker_half_open_total": 0,
+      "circuit_breaker_recovered_total": 0,
+      "resumed_workflows": 0,
+      "failed_resumptions": 0,
+      "recovery_duration_ms": 0.0,
+      "service_metrics": {
+        "GEMINI": {
+          "successful_requests": 7,
+          "failed_requests": 2,
+          "rejected_requests": 0
+        },
+        "GOOGLE_MAPS": {
+          "successful_requests": 1,
+          "failed_requests": 0,
+          "rejected_requests": 0
+        },
+        "WEBSITE_SCRAPER": {
+          "successful_requests": 4,
+          "failed_requests": 2,
+          "rejected_requests": 0
+        }
+      }
+    },
+    "audit_trail_entries_count": 40,
+    "recovery_id": null
+  }
+]

@@ -1,0 +1,67 @@
+# GrowthScout AI — Docker Build Exclusions
+# Keeps the Docker context minimal and the image secure.
+
+# Version control
+.git
+.gitignore
+
+# IDE/editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+*.egg
+dist
+build
+
+# Virtual environments
+.venv
+venv
+env
+
+# Testing & evaluation
+tests/
+eval/
+.pytest_cache
+.coverage
+htmlcov
+
+# Documentation artifacts (not needed at runtime)
+docs/
+*.md
+!service/SERVICE_CONTRACT.md
+!service/deployment_guide.md
+!service/operations_runbook.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files (secrets — mount at runtime)
+.env
+.env.*
+
+# Scratch and temporary files
+scratch/
+artifacts/
+releases/
+security/
+*.log
+*.tmp
+
+# Gemini/IDE configuration
+.gemini

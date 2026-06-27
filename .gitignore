@@ -5,3 +5,14 @@ __pycache__/
 .pytest_cache/
 .venv/
 .env
+
+# Runtime artifacts
+artifacts/checkpoints/
+
+# Python caches
+*.egg-info/
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store

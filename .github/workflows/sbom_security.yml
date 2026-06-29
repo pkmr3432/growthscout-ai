@@ -1,0 +1,98 @@
+# .github/workflows/sbom_security.yml
+name: Supply Chain Security & Vulnerability Audits
+
+on:
+  push:
+    branches:
+      - main
+      - release-*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # ────────────────────────────────────────────────────────
+  # 1. Dependency Analysis & SBOM Generation
+  # ────────────────────────────────────────────────────────
+  sbom:
+    name: Generate SBOM & Dependency Inventory
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate CycloneDX Python SBOM
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py poetry --outfile python-sbom.json --format json
+
+      - name: Generate CycloneDX TypeScript SBOM
+        run: |
+          cd growthscout-js
+          npx @cyclonedx/cyclonedx-npm --output-file ../ts-sbom.json --output-format JSON
+
+      - name: Archive SBOM Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: software-bill-of-materials
+          path: |
+            python-sbom.json
+            ts-sbom.json
+
+  # ────────────────────────────────────────────────────────
+  # 2. Container Ingestion Vulnerability Scanning
+  # ────────────────────────────────────────────────────────
+  image_scanning:
+    name: Container Security & Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: sbom
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Gateway Image Mock Run
+        run: |
+          docker build -t growthscout-gateway:latest .
+
+      - name: Run Vulnerability Scanner (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'growthscout-gateway:latest'
+          format: 'table'
+          exit-code: '0' # Audit only, do not block CI for warning/medium issues
+          severity: 'CRITICAL,HIGH'
+
+  # ────────────────────────────────────────────────────────
+  # 3. Artifact Integrity verification
+  # ────────────────────────────────────────────────────────
+  integrity_verification:
+    name: Checksums Provenance Verification
+    runs-on: ubuntu-latest
+    needs: sbom
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build Python Packaging Artifacts
+        run: |
+          pip install poetry
+          cd growthscout-python
+          poetry build
+
+      - name: Generate Checksum Digests
+        run: |
+          cd growthscout-python/dist/
+          sha256sum * > SHA256SUMS.txt
+          echo "Generated SHA256 check digests:"
+          cat SHA256SUMS.txt
+
+      - name: Archive Integrity Checksums
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-integrity-digests
+          path: growthscout-python/dist/SHA256SUMS.txt

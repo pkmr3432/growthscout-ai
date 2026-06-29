@@ -1,0 +1,15 @@
+{
+  "compatibility_status": "COMPATIBLE",
+  "counts": {
+    "breaking": 0,
+    "additive": 0,
+    "deprecated": 0,
+    "compatible": 0
+  },
+  "details": {
+    "breaking": [],
+    "additive": [],
+    "deprecated": [],
+    "compatible": []
+  }
+}

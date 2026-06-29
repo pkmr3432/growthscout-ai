@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "growthscout"
+version = "1.0.0-rc1"
+description = "Official Python SDK client library for the GrowthScout AI Platform"
+authors = ["GrowthScout Team <support@growthscout.ai>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/pkmr3432/growthscout-ai"
+packages = [{include = "growthscout"}]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+httpx = "^0.28.1"
+pydantic = "^2.10.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^9.0.0"
+black = "^24.0.0"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

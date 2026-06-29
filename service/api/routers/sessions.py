@@ -26,18 +26,22 @@ router = APIRouter(
     "",
     response_model=SessionResponse,
     status_code=status.HTTP_201_CREATED,
+    operation_id="createSession",
+    summary="Create a new workflow session",
+    description="Initializes a new workflow execution session and validates its initial state transitions.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"},
-        403: {"model": StandardErrorResponse, "description": "Forbidden"}
+        400: {"model": StandardErrorResponse, "description": "Bad Request - Schema validation failed"},
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        403: {"model": StandardErrorResponse, "description": "Forbidden - Insufficient authentication scopes"},
+        413: {"model": StandardErrorResponse, "description": "Payload Too Large - Request body exceeds limit"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error - Unexpected failure"}
     }
 )
 async def create_session(
     payload: SessionCreateRequest,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Initializes a new session and validates the initial lifecycle.
-    """
     doc = await service.create_session(
         niche=payload.niche,
         location=payload.location,
@@ -48,27 +52,35 @@ async def create_session(
 @router.get(
     "/{session_id}",
     response_model=SessionResponse,
+    operation_id="getSession",
+    summary="Retrieve session checkpoint state",
+    description="Loads the persisted checkpoint document and execution context for the specified session ID.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"},
-        404: {"model": StandardErrorResponse, "description": "Session Not Found"}
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        404: {"model": StandardErrorResponse, "description": "Session Not Found - The specified ID does not exist"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error"}
     }
 )
 async def get_session(
     session_id: str,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Retrieves current checkpoint state details for a specific session ID.
-    """
     doc = await service.get_session(session_id)
     return SessionResponse(**doc)
 
 @router.post(
     "/{session_id}/run",
     response_model=SessionResponse,
+    operation_id="runSession",
+    summary="Execute session workflow",
+    description="Triggers the background execution runner loop for the session. Verifies locks and transitions state to RUNNING.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"},
-        409: {"model": StandardErrorResponse, "description": "Conflict (Session Locked)"}
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        404: {"model": StandardErrorResponse, "description": "Session Not Found - The specified ID does not exist"},
+        409: {"model": StandardErrorResponse, "description": "Conflict - Session is currently locked by another active run"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error"}
     }
 )
 async def run_session(
@@ -76,9 +88,6 @@ async def run_session(
     request: Request,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Triggers execution loop run for a session ID. Checks locks and schedules background tasks.
-    """
     request_id = getattr(request.state, "request_id", "unknown")
     correlation_id = getattr(request.state, "correlation_id", "unknown")
     doc = await service.run_session(session_id, request_id, correlation_id)
@@ -87,9 +96,16 @@ async def run_session(
 @router.post(
     "/{session_id}/feedback",
     response_model=SessionResponse,
+    operation_id="submitFeedback",
+    summary="Submit HITL review feedback",
+    description="Submits human reviewer approval or modification notes, advancing the workflow run from its review gate.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"},
-        404: {"model": StandardErrorResponse, "description": "Session Not Found"}
+        400: {"model": StandardErrorResponse, "description": "Bad Request - Schema validation failed"},
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        404: {"model": StandardErrorResponse, "description": "Session Not Found - The specified ID does not exist"},
+        409: {"model": StandardErrorResponse, "description": "Conflict - Session is currently locked by another active run"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error"}
     }
 )
 async def submit_feedback(
@@ -98,9 +114,6 @@ async def submit_feedback(
     request: Request,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Submits feedback to resume workflow from a human review gate.
-    """
     request_id = getattr(request.state, "request_id", "unknown")
     correlation_id = getattr(request.state, "correlation_id", "unknown")
     doc = await service.submit_feedback(
@@ -116,25 +129,33 @@ async def submit_feedback(
 @router.post(
     "/{session_id}/cancel",
     response_model=SessionResponse,
+    operation_id="cancelSession",
+    summary="Cancel active workflow execution",
+    description="Cooperatively cancels any running background tasks for the session and releases locks and resources.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"}
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        404: {"model": StandardErrorResponse, "description": "Session Not Found - The specified ID does not exist"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error"}
     }
 )
 async def cancel_session(
     session_id: str,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Cooperatively cancels actively running background tasks for the session.
-    """
     doc = await service.cancel_session(session_id)
     return SessionResponse(**doc)
 
 @router.get(
     "/{session_id}/stream",
+    operation_id="streamSession",
+    summary="Stream session events (SSE)",
+    description="Establishes a persistent Server-Sent Events (SSE) stream yielding real-time execution events for the session. Supports Last-Event-ID parameter.",
     responses={
-        401: {"model": StandardErrorResponse, "description": "Unauthorized"},
-        404: {"model": StandardErrorResponse, "description": "Session Not Found"}
+        401: {"model": StandardErrorResponse, "description": "Unauthorized - Missing or invalid API key"},
+        404: {"model": StandardErrorResponse, "description": "Session Not Found - The specified ID does not exist"},
+        429: {"model": StandardErrorResponse, "description": "Too Many Requests - Rate limit exceeded"},
+        500: {"model": StandardErrorResponse, "description": "Internal Server Error"}
     }
 )
 async def stream_session(
@@ -142,13 +163,6 @@ async def stream_session(
     request: Request,
     service: ExecutionService = Depends(get_execution_service)
 ):
-    """
-    Establishes a Server-Sent Events (SSE) channel streaming real-time
-    execution events for the specified session.
-
-    Supports reconnection via the Last-Event-ID header — missed events
-    are replayed from the bounded replay buffer before live streaming resumes.
-    """
     from fastapi.responses import StreamingResponse
     from service.infrastructure.registry import registry
 

@@ -1,0 +1,39 @@
+# deployment/prometheus/alerts.yml
+groups:
+  - name: growthscout-gateway-alerts
+    rules:
+      - alert: HighRequestLatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, path)) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API Request Latency on {{ $labels.path }}"
+          description: "P95 request latency is {{ $value }}s, exceeding the 500ms budget limit threshold."
+
+      - alert: APIErrorSpike
+        expr: (sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m]))) * 100 > 1.0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API Error rate spike detected"
+          description: "HTTP 5xx error rate is currently {{ $value }}%, exceeding the 1% SLO boundary."
+
+      - alert: ActiveRateLimitingSpike
+        expr: sum(rate(http_requests_total{status="429"}[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High volume of HTTP 429 rate limits triggered"
+          description: "Currently triggering more than 10 rate limits per second. Potential client abuse or misconfigured keys."
+
+      - alert: SSEConnectionLoss
+        expr: sse_active_connections_count == 0 and sum(rate(workflow_execution_started_total[10m])) > 0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Active workflow executions without SSE listeners"
+          description: "Workflows are running in background but 0 active Server-Sent Events subscribers exist."

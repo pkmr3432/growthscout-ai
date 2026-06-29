@@ -1,0 +1,65 @@
+# deployment/docker-compose.yml
+version: '3.8'
+
+services:
+  gateway:
+    image: growthscout-gateway:latest
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: growthscout-gateway
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - LOG_FORMAT=json
+      - API_KEY=gs_dev_key_12345
+      - RATE_LIMIT_CAPACITY=100
+      - RATE_LIMIT_REFILL_RATE=1.0
+      - PERSISTENCE_DIR=/app/data
+    ports:
+      - "8000:8000"
+    volumes:
+      - gateway-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: always
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+
+  prometheus:
+    image: prom/prometheus:v2.50.0
+    container_name: growthscout-prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    restart: always
+
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: growthscout-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    restart: always
+
+volumes:
+  gateway-data:
+  prometheus-data:
+  grafana-data:

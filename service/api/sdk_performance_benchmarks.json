@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-06-29T14:26:48Z",
+  "python_sdk": {
+    "import_startup_ms": 0.002,
+    "package_sdist_bytes": 6044,
+    "package_whl_bytes": 8309,
+    "serialization_overhead_micros": 4.2
+  },
+  "typescript_sdk": {
+    "esm_bundle_bytes": 5561,
+    "cjs_bundle_bytes": 5732,
+    "serialization_overhead_micros": 1.8
+  },
+  "latency_budgets": {
+    "client_init_overhead_ms": 0.05,
+    "sse_reconnect_handshake_ms": 12.0
+  }
+}

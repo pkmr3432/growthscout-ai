@@ -1,0 +1,100 @@
+# deployment/kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: growthscout-gateway
+  namespace: growthscout
+  labels:
+    app: growthscout-gateway
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: growthscout-gateway
+  template:
+    metadata:
+      labels:
+        app: growthscout-gateway
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: gateway
+          image: growthscout-gateway:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+              name: http
+          env:
+            - name: ENVIRONMENT
+              value: "production"
+            - name: DEBUG
+              value: "false"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: growthscout-secrets
+                  key: API_KEY
+            - name: PERSISTENCE_DIR
+              value: "/app/data"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          startupProbe:
+            httpGet:
+              path: /startup-check
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
+          volumeMounts:
+            - name: gateway-storage
+              mountPath: /app/data
+      volumes:
+        - name: gateway-storage
+          persistentVolumeClaim:
+            claimName: growthscout-gateway-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: growthscout-gateway
+  namespace: growthscout
+  labels:
+    app: growthscout-gateway
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: growthscout-gateway
+  type: ClusterIP

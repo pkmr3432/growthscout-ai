@@ -33,7 +33,13 @@ def increment_error_counter() -> None:
     _error_counter += 1
 
 
-@router.get("/metrics", response_class=Response)
+@router.get(
+    "/metrics",
+    response_class=Response,
+    operation_id="prometheusMetrics",
+    summary="Expose Prometheus metrics",
+    description="Exposes application metrics in Prometheus text exposition format including uptime, request count, active runs, locks, and SSE subscribers."
+)
 async def prometheus_metrics():
     """
     Exposes application metrics in Prometheus text exposition format.

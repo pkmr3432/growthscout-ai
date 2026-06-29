@@ -20,14 +20,30 @@ def get_authenticator(reg: ServiceRegistry = Depends(get_registry)) -> Authentic
     """Returns authenticator service abstraction."""
     return reg.authenticator
 
+from fastapi.security import APIKeyHeader
+from typing import Optional
+
+api_key_scheme = APIKeyHeader(
+    name="X-API-Key",
+    auto_error=False,
+    description="Authentication client API key required for versioned endpoints"
+)
+
 async def verify_api_key(
-    x_api_key: str = Header(..., description="Authentication client API key"),
+    x_api_key: Optional[str] = Depends(api_key_scheme),
     authenticator: Authenticator = Depends(get_authenticator)
 ) -> str:
     """
     Enforces X-API-Key header authentication check.
-    Raises 401 on authentication failures.
+    Raises 400 if missing (to maintain validation behavior expected by tests),
+    and 401 on authentication failures.
     """
+    if not x_api_key:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Header 'X-API-Key' is required and missing."
+        )
+    
     is_valid = await authenticator.authenticate(x_api_key)
     if not is_valid:
         raise HTTPException(

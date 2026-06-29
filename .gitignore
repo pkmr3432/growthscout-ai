@@ -16,3 +16,23 @@ htmlcov/
 
 # macOS
 .DS_Store
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+.next/
+out/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Database
+*.db
+*.db-shm
+*.db-wal
